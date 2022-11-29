@@ -69,6 +69,7 @@ Neither the copyright holder nor any applicable licensor will be liable for any 
     - `control` Module
         - [mobile_manipulation Module](mobile-manipulation.md)
         - [single_demo_grasp Module](single-demonstration-grasping.md)
+        - [multi_object_search Module](multi_object_search.md)
 
     - `simulation` Module
         - [human_model_generation Module](human_model_generation.md)
