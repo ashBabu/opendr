@@ -37,9 +37,7 @@ class EfficientLpsNode(Node):
     def __init__(self,
                  input_rgb_pcl_topic: str,
                  checkpoint: str,
-                 output_heatmap_topic: Optional[str] = None,
-                 output_rgb_image_topic: Optional[str] = None,
-                 projected_output: bool = False,
+                 output_rgb_visualization_topic: Optional[str] = None
                  ):
         """
         Initialize the EfficientLPS ROS node and create an instance of the respective learner class.
@@ -56,17 +54,13 @@ class EfficientLpsNode(Node):
         :type projected_output: bool
         """
 
-        self.input_rgb_pcl_topic = input_rgb_pcl_topic
         self.checkpoint = checkpoint
-        self.output_heatmap_pointcloud_topic = output_heatmap_topic
-        self.output_rgb_visualization_topic = output_rgb_image_topic
-        self.projected_output = projected_output
+        
+
 
         # Initialize all ROS related things
         self._bridge = ROS2Bridge()
-        self._instance_heatmap_publisher = None
-        self._semantic_heatmap_publisher = None
-        self._visualization_publisher = None
+
 
         # Initialize the panoptic segmentation network
         config_file = Path(sys.modules[
@@ -108,17 +102,7 @@ class EfficientLpsNode(Node):
         Set up the publishers as requested by the user.
         """
         if self.output_heatmap_pointcloud_topic is not None:
-            if self.projected_output:
-                self._instance_heatmap_publisher = self.create_publisher(ROS_Image,
-                                                                         f"{self.output_heatmap_pointcloud_topic}/instance",
-                                                                         10)
-                self._semantic_heatmap_publisher = self.create_publisher(ROS_Image,
-                                                                         f"{self.output_heatmap_pointcloud_topic}/semantic",
-                                                                         10)
-            else:
-                self._instance_heatmap_publisher = self.create_publisher(ROS_PointCloud,
-                                                                         self.output_heatmap_pointcloud_topic,
-                                                                         10)
+
                 self._semantic_heatmap_publisher = None
         if self.output_rgb_visualization_topic is not None:
             self._visualization_publisher = self.create_publisher(ROS_Image,
@@ -173,66 +157,23 @@ class EfficientLpsNode(Node):
         :type data: sensor_msgs.msg.PointCloud
         """
         # Convert sensor_msgs.msg.Image to OpenDR Image
-        pointcloud = self._bridge.from_ros_point_cloud(data)
 
-        try:
-            # Get a list of two OpenDR heatmaps: [instance map, semantic map, depth map] if projected_output is True,
-            # or a list of numpy arrays: [instance labels, semantic labels] otherwise.
-            prediction = self._learner.infer(pointcloud, projected=self.projected_output)
-
-            # The output topics are only published if there is at least one subscriber
-            if self._visualization_publisher is not None and \
-                    self._visualization_publisher.get_num_connections() > 0:
-                if self.projected_output:
-                    projected_output = prediction[2]
-                    panoptic_image = EfficientLpsLearner.visualize(projected_output, prediction[:2], show_figure=False)
-                else:
-                    panoptic_image = EfficientLpsLearner.visualize(pointcloud, prediction[:2], show_figure=False)
-
-                self._visualization_publisher.publish(self._bridge.to_ros_image(panoptic_image))
-            if self._instance_heatmap_publisher is not None and \
-                    self._instance_heatmap_publisher.get_num_connections() > 0:
-
-                if self.projected_output:
-                    self._instance_heatmap_publisher.publish(self._bridge.to_ros_image(prediction[0]))
-                else:
-                    labeled_pc = ROS_PointCloud(self._join_arrays([pointcloud.data, prediction[0], prediction[1]]))
-                    self._instance_heatmap_publisher.publish(self._bridge.to_ros_point_cloud(labeled_pc))
-
-            if self._semantic_heatmap_publisher is not None and \
-                    self._semantic_heatmap_publisher.get_num_connections() > 0:
-                if self.projected_output:
-                    self._semantic_heatmap_publisher.publish(self._bridge.to_ros_image(prediction[1]))
-                else:
-                    self.get_logger().error("Semantic heatmap cannot be published in non-projected mode.")
-
-        except Exception as e:
-            self.get_logger().error(f'Failed to generate prediction: {e}')
 
 
 def main(args=None):
     rclpy.init(args=args)
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('input_rgb_pcl_topic', type=str, default='/usb_cam/pcl_raw',
-                        help='listen to RGB pointclouds on this topic')
+    parser.add_argument('input_pcl_topic', type=str, default='/usb_cam/pcl_raw',
+                        help='listen to pointclouds on this topic')
     parser.add_argument('--checkpoint', type=str, default='semantickitti',
                         help='download pretrained models [semantickitti] or load from the provided path')
-    parser.add_argument('--output_heatmap_topic', type=str, default='/opendr/panoptic',
-                        help='publish the semantic and instance maps or pointcloud on this topic \
-                            as "OUTPUT_HEATMAP_TOPIC/semantic" and "OUTPUT_HEATMAP_TOPIC/instance"')
-    parser.add_argument('--output_rgb_visualization_topic', type=str,
-                        default='/opendr/panoptic/rgb_visualization',
-                        help='publish the panoptic segmentation map as an RGB image on this topic')
-    parser.add_argument("--projected_output", action="store_true",
-                        help="Compute the predictions and visualizations as 2D projected maps if True, \
-                        otherwise as additional channels in a Point Cloud.")
+    parser.add_argument('--output_rgb_visualization_topic', type=str, default="/opendr/panoptic",
+                        help='publish the rgb visualization on this topic')
     args = parser.parse_args()
-    efficient_ps_node = EfficientLpsNode(args.input_rgb_pcl_topic,
-                                         args.checkpoint,
-                                         args.output_heatmap_topic,
-                                         args.output_rgb_visualization_topic,
-                                         args.projected_output)
-    efficient_ps_node.listen()
+    efficient_lps_node = EfficientLpsNode(args.input_pcl_topic, 
+                                          args.checkpoint,
+                                          args.output_rgb_visualization_topic)
+    efficient_lps_node.listen()
 
 
 if __name__ == '__main__':
