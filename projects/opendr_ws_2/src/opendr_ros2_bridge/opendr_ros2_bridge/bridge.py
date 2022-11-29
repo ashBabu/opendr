@@ -429,21 +429,6 @@ class ROS2Bridge:
         cv_image = np.expand_dims(cv_image, axis=-1)
         image = Image(np.asarray(cv_image, dtype=np.uint8))
         return image
-            
-    def from_ros_point_cloud2(self, point_cloud: PointCloud2Msg):
-
-        """
-        Converts a ROS PointCloud2 message into an OpenDR PointCloud
-        :param message: ROS PointCloud2 to be converted
-        :type message: sensor_msgs.msg.PointCloud2
-        :return: OpenDR PointCloud
-        :rtype: engine.data.PointCloud
-        """
-
-        points = pc2.read_points_list(point_cloud, field_names=[f.name for f in point_cloud.fields])
-        result = PointCloud(np.array(points))
-
-        return result
 
     def from_category_to_rosclass(self, prediction, timestamp, source_data=None):
         """
@@ -468,7 +453,22 @@ class ROS2Bridge:
             classification.source_img = source_data
         return classification
 
-    def to_ros_point_cloud2(self, point_cloud: PointCloud, channels: str=None):
+    def from_ros_point_cloud2(self, point_cloud: PointCloud2Msg):
+
+        """
+        Converts a ROS PointCloud2 message into an OpenDR PointCloud
+        :param message: ROS PointCloud2 to be converted
+        :type message: sensor_msgs.msg.PointCloud2
+        :return: OpenDR PointCloud
+        :rtype: engine.data.PointCloud
+        """
+
+        points = pc2.read_points_list(point_cloud, field_names=[f.name for f in point_cloud.fields])
+        result = PointCloud(np.array(points))
+
+        return result
+
+    def to_ros_point_cloud2(self, point_cloud: PointCloud, timestamp: str, channels: str=None):
 
         """
         Converts an OpenDR PointCloud message into a ROS PointCloud2
@@ -481,7 +481,7 @@ class ROS2Bridge:
         """
 
         header = Header()
-        header.stamp = rospy.Time.now()
+        header.stamp = timestamp
         header.frame_id = "base_link"
 
         channel_count = point_cloud.data.shape[-1] - 3
