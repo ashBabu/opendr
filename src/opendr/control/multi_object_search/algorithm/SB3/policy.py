@@ -14,7 +14,7 @@
 
 
 from functools import partial
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Dict, List, Optional, Tuple, Type, Union
 
 import gym
 import numpy as np

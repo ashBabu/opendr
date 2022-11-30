@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from typing import Dict, Generator, Optional, Union
+from typing import Dict, Generator, Optional
 
 import numpy as np
 import torch as th
