@@ -3,4 +3,4 @@ from opendr.control.multi_object_search.algorithm.evaluation import evaluation_r
 from opendr.control.multi_object_search.algorithm.igibson.multi_object_env import MultiObjectEnv
 
 
-__all__ = ['ExplorationRLLearner','MultiObjectEnv','evaluation_rollout']
+__all__ = ['ExplorationRLLearner', 'MultiObjectEnv', 'evaluation_rollout']

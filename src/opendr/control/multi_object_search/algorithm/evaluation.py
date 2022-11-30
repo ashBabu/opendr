@@ -19,7 +19,7 @@ import torch
 
 def evaluation_rollout(policy, env, num_eval_episodes: int, verbose: bool = True,
                        name_prefix: str = '', name_scene: str = '', deterministic_policy: bool = False):
-    
+
     name_prefix = f"{name_prefix + '_' if name_prefix else ''}MultiObjectEnv"
 
     episode_rewards, episode_lengths, episode_successes, episode_spls, collisions,  = [
@@ -49,8 +49,8 @@ def evaluation_rollout(policy, env, num_eval_episodes: int, verbose: bool = True
 
                 new_position = env.robots[0].get_position()[:2]
                 _, geodesic_dist = env.scene.get_shortest_path(
-                    env.task.floor_num, 
-                    curr_position, 
+                    env.task.floor_num,
+                    curr_position,
                     new_position,
                     entire_path=False)
                 curr_position = new_position
@@ -63,13 +63,14 @@ def evaluation_rollout(policy, env, num_eval_episodes: int, verbose: bool = True
                 episode_spls.append(0)
             episode_lengths.append(episode_length)
             collisions.append(env.collision_step)
-            
+
             episode_successes.append(int(infos[-1]['success']))
 
             if verbose > 1:
-                print(f"{name_prefix}: Eval episode {ep}: {(time.time() - t) / 60:.2f} minutes, {episode_length} steps. \
-                    Success-rate: {np.mean(episode_successes)}.")    
-    
+                print(f"{name_prefix}: Eval episode {ep}: \
+                    {(time.time() - t) / 60:.2f} minutes, {episode_length} steps. \
+                    Success-rate: {np.mean(episode_successes)}.")
+
     metrics = {'return_undisc': np.mean(episode_rewards),
                'epoch_len': np.mean(episode_lengths),
                'success': np.mean(episode_successes),

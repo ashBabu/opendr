@@ -91,7 +91,7 @@ class BaseFunctions(BaseEnv):
         """
         Load the scene and robot
         """
-        
+
         if self.config["scene"] == "gibson":
             scene = StaticIndoorScene(
                 self.config["scene_id"],

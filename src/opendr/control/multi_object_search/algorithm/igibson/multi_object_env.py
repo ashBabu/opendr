@@ -45,7 +45,7 @@ class MultiObjectEnv(BaseFunctions):
         :param automatic_reset: whether to automatic reset after an episode finishes
         """
         self.mapping = MappingModule(config_file, scene_id)
-           
+
         self.mix_sample = mix_sample
         super(MultiObjectEnv, self).__init__(
             config_file=config_file,
@@ -71,7 +71,7 @@ class MultiObjectEnv(BaseFunctions):
             self.resample_task = self.config.get('resample_task', True)
 
         self.max_aux_episodic_prob = self.config.get('max_aux_episodic_prob', 0.72)
-        
+
         self.SR_rate = []
 
     def load_task_setup(self):
@@ -350,7 +350,7 @@ class MultiObjectEnv(BaseFunctions):
                                             [linear_vel, angular_vel, circvar(self.aux_angle_track), var0, var1],
                                             np.array([int(len(collision_links) > 0)]),
                                             np.array([np.array(self.coll_track).sum()]), action['action'],
-                                            self.task.wanted_objects])  # ,[self.task.num_cat_in_episode]])#<<<<<<<<<<<<<<<<
+                                            self.task.wanted_objects])
 
         self.prev_aux_predictions.pop(0)
         self.prev_aux_predictions.append(self.mapping.aux_action)
@@ -545,19 +545,19 @@ class MultiObjectEnv(BaseFunctions):
             self.SR_rate.pop(0)
 
         self.episodic_aux_prediction = np.random.uniform() < self.aux_episodic_prob
-        
+
         if self.mapping.aux_prob_counter > 4 and self.episode_counter > 25 and np.mean(
                 np.array(self.SR_rate)) > 0.55 and not self.evaluate:
             self.aux_episodic_prob = min(self.max_aux_episodic_prob, self.aux_episodic_prob + 0.02)
             self.mapping.aux_prob_counter = 0
-            
+
         if self.scene_reset_counter > 4 and self.multiple_envs and self.mix_sample:
             scene_id = np.random.choice(['Rs_int', 'Wainscott_1_int', 'Benevolence_0_int', 'Beechwood_1_int'])
             if self.last_scene_id != scene_id:
                 self.reload_model(scene_id)
                 self.scene_reset_counter = 0
                 self.last_scene_id = scene_id
-  
+
         self.scene_reset_counter += 1
         self.mapping.aux_prob_counter += 1
 
@@ -566,18 +566,18 @@ class MultiObjectEnv(BaseFunctions):
         self.robots[0].set_position([100.0, 100.0, 100.0])
         self.task.reset_scene(self)
         self.task.reset_agent(self)
-        
+
         if self.test_demo:
-           
+
             # Elementary test on the Demo-scene Rs (not to confuse with Rs_int)
             self.land(self.robots[0], [0, 0, 0], [0, 0, 0])
             orn = np.array([0, 1, 1.5])
             positions_cracker = [
-                [0.4, -1.0, 0.0], 
-                [0.4, -2.0, 0.0], 
-                [0.4, -3.0, 0.0], 
+                [0.4, -1.0, 0.0],
+                [0.4, -2.0, 0.0],
+                [0.4, -3.0, 0.0],
                 [0.95, -3.1, 0.0],
-                [0.5, 1.0, 0.0], 
+                [0.5, 1.0, 0.0],
                 [1.0, 1.0, 0.0]]
             self.task.target_pos_list = np.array(positions_cracker)
             for i, cracker_list in enumerate(self.task.interactive_objects):
@@ -595,7 +595,7 @@ class MultiObjectEnv(BaseFunctions):
         self.reset_variables()
         self.mapping.reset(self)
         self.global_map = np.zeros((self.mapping.map_size[0], self.mapping.map_size[1], 3), dtype=np.uint8) * 255
-        
+
         if self.test_demo:
             self.global_map[:, :, :] = self.mapping.colors['walls']
 

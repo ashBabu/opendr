@@ -26,7 +26,8 @@ class MultiObjectTask(PointNavFixedTask):
         self.num_tar_objects = self.config.get("tar_objects", 6.0)
         self.polar_to_geodesic = self.config.get("polar_to_geodesic", False)
 
-        self.replace_objects = self.config.get("replace_objects", True) if not self.config.get('evaluate', False) else False
+        self.replace_objects = self.config.get(
+            "replace_objects", True) if not self.config.get('evaluate', False) else False
 
         self.resample_episode_prob = self.config.get("resample_episode_prob", 0.15)
 
@@ -102,9 +103,9 @@ class MultiObjectTask(PointNavFixedTask):
                     continue
 
                 _, dist = env.scene.get_shortest_path(
-                    self.floor_num, 
-                    self.initial_pos[:2], 
-                    pos[:2], 
+                    self.floor_num,
+                    self.initial_pos[:2],
+                    pos[:2],
                     entire_path=False
                 )
 
@@ -185,7 +186,7 @@ class MultiObjectTask(PointNavFixedTask):
     def load_door_proxy_material(self):
         self.forbidden_door_sem_ids = []
         self.door_sem_ids = []
-        
+
     def load_door_material(self, env):
 
         self.door_sem_ids = np.arange(375, 390) * 255
@@ -225,7 +226,7 @@ class MultiObjectTask(PointNavFixedTask):
 
             else:
 
-                sem_id = env.simulator.pb_id_to_sem_id_map[door_id]  
+                sem_id = env.simulator.pb_id_to_sem_id_map[door_id]
                 self.all_door_ids.append(door_id)
                 door_pos_orient = p.getBasePositionAndOrientation(door_id)
                 pos_door = door_pos_orient[0]

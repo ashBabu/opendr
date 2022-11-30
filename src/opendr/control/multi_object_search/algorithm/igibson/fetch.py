@@ -30,7 +30,7 @@ class Fetch_DD(Fetch):
         self.action_space = gym.spaces.Box(shape=(self.action_dim,), low=-1.0, high=1.0, dtype=np.float32)
 
     def apply_robot_action(self, action):
-        
+
         lin_vel, ang_vel = action
 
         if not hasattr(self, "wheel_axle_half") or not hasattr(self, "wheel_radius"):
@@ -39,7 +39,7 @@ class Fetch_DD(Fetch):
             )
         left_wheel_ang_vel = (lin_vel - ang_vel * self.wheel_axle_half) / self.wheel_radius
         right_wheel_ang_vel = (lin_vel + ang_vel * self.wheel_axle_half) / self.wheel_radius
-        
+
         self.ordered_joints[1].set_motor_velocity(
             self.velocity_coef * left_wheel_ang_vel)  # *self.ordered_joints[1].max_velocity)
         self.ordered_joints[0].set_motor_velocity(

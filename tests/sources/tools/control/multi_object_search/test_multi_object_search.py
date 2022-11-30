@@ -19,7 +19,7 @@ import torch
 import unittest
 import random
 from opendr.control.multi_object_search import MultiObjectEnv
-from opendr.control.multi_object_search import ExplorationRLLearner 
+from opendr.control.multi_object_search import ExplorationRLLearner
 from igibson.utils.utils import parse_config
 from stable_baselines3.common.monitor import Monitor
 
@@ -52,33 +52,33 @@ class MultiObjectSearchTest(unittest.TestCase):
               "**********************************")
         set_seed(0)
         cls.learner = ExplorationRLLearner(
-            env=None, 
-            device=device, 
-            iters=TEST_ITERS, 
-            temp_path=str(TEMP_SAVE_DIR), 
+            env=None,
+            device=device,
+            iters=TEST_ITERS,
+            temp_path=str(TEMP_SAVE_DIR),
             config_filename=EVAL_CONFIG_FILE)
 
         cls.download_assets()
         cls.download_ckp()
         cls.tearDownClass()
         cls.env = MultiObjectEnv(config_file=EVAL_CONFIG_FILE, scene_id="Rs")
-        
+
         if not TEMP_SAVE_DIR.exists():
             TEMP_SAVE_DIR.mkdir(parents=True, exist_ok=True)
-        
+
         cls.env = Monitor(cls.env, str(TEMP_SAVE_DIR))
         config = parse_config(EVAL_CONFIG_FILE)
         cls.learner = ExplorationRLLearner(
-            env=cls.env, 
+            env=cls.env,
             lr=config.get("learning_rate", 0.0001),
-            ent_coef=config.get("ent_coef", 0.005), 
+            ent_coef=config.get("ent_coef", 0.005),
             clip_range=config.get("clip_range", 0.1),
             n_steps=config.get("rollout_buffer_size", 2048),
             n_epochs=config.get("n_epochs", 4),
             batch_size=config.get("batch_size", 64),
             gamma=config.get("gamma", 0.99),
             device=device,
-            iters=TEST_ITERS, 
+            iters=TEST_ITERS,
             temp_path=str(TEMP_SAVE_DIR),
             config_filename=EVAL_CONFIG_FILE)
 
@@ -88,20 +88,20 @@ class MultiObjectSearchTest(unittest.TestCase):
 
     @classmethod
     def download_assets(cls):
-        
+
         prereqs_folders = cls.learner.download(mode='ig_requirements')
         for file_dest in prereqs_folders:
             cls.assertTrue(Path(file_dest).exists, f"file could not be downloaded {file_dest}")
 
     @classmethod
     def download_ckp(cls):
-        
+
         ckpt_folder = cls.learner.download(str(TEMP_SAVE_DIR), robot_name="Locobot")
         cls.assertTrue(Path(ckpt_folder).exists, f"Checkpoint file could not be downloaded {ckpt_folder}")
 
         # Remove temporary files
         try:
-            
+
             shutil.rmtree(TEMP_SAVE_DIR)
         except OSError as e:
             print(f"Exception when trying to remove temp directory: {e.strerror}")
@@ -111,28 +111,28 @@ class MultiObjectSearchTest(unittest.TestCase):
 
         # Remove temporary files
         try:
-            
+
             shutil.rmtree(TEMP_SAVE_DIR)
         except OSError as e:
             print(f"Exception when trying to remove temp directory: {e.strerror}")
 
     def test_fit(cls):
-      
+
         weights_before_fit = get_first_weight(cls.learner)
         cls.learner.fit()
         cls.assertFalse(
-                torch.equal(weights_before_fit, get_first_weight(cls.learner)),
-                msg="Fit method did not alter model weights")
+            torch.equal(weights_before_fit, get_first_weight(cls.learner)),
+            msg="Fit method did not alter model weights")
 
     def test_eval(cls):
-        
+
         nr_evaluations = 1
         metrics = cls.learner.eval(cls.env, nr_evaluations=nr_evaluations, name_scene="Rs")
         cls.assertTrue(len(metrics['episode_rewards']) == nr_evaluations, "Episode rewards have incorrect length.")
         cls.assertTrue((np.array(metrics['episode_lengths']) >= 0.0).all(), "Test episode lengths is negative")
-    
+
     def test_eval_pretrained(cls):
-        
+
         nr_evaluations = 3
         cls.learner.load('pretrained')
         metrics = cls.learner.eval(cls.env, nr_evaluations=nr_evaluations, name_scene="Rs")
@@ -150,7 +150,7 @@ class MultiObjectSearchTest(unittest.TestCase):
     def test_save_load(cls):
         weights_before_saving = get_first_weight(cls.learner)
         cls.learner.save(os.path.join(TEMP_SAVE_DIR, 'initial_weights'))
-        
+
         cls.learner.load('pretrained')
         cls.assertFalse(
             torch.equal(weights_before_saving, get_first_weight(cls.learner)),
@@ -170,4 +170,3 @@ class MultiObjectSearchTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-    

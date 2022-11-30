@@ -108,7 +108,8 @@ class SaveModel(BaseCallback):
                 if self.verbose > 0:
                     print(f"Num timesteps: {self.num_timesteps}")
                     print(
-                        f"Best mean reward: {self.best_mean_reward:.2f} - Last mean reward per episode: {mean_reward:.2f}")
+                        f"Best mean reward: {self.best_mean_reward:.2f} - \
+                        Last mean reward per episode: {mean_reward:.2f}")
 
                 # New best model, you could save the agent here
                 if mean_reward > self.best_mean_reward:

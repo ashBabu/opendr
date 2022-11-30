@@ -11,7 +11,7 @@ class PotentialRewardClipped(PotentialReward):
     def __init__(self, config):
         super(PotentialRewardClipped, self).__init__(config)
         # specific value depending on the robot used.
-        # The Fetch robot can move faster in the direction of the cloest object as the Locobot 
+        # The Fetch robot can move faster in the direction of the cloest object as the Locobot
         # => Fetch clip value must the larger
         self.clip_value = config.get("pot_rew_clip_value", 0.2)
 
