@@ -78,21 +78,21 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
             observation_space: gym.spaces.Space,
             action_space: gym.spaces.Space,
             lr_schedule: Schedule,
-            net_arch: Optional[List[Union[int, Dict[str, List[int]]]]]= None,
-            activation_fn: Type[nn.Module]= nn.Tanh,
-            ortho_init: bool= True,
-            use_sde: bool= False,
-            log_std_init: float= 0.0,
-            full_std: bool= True,
-            sde_net_arch: Optional[List[int]]= None,
-            use_expln: bool= False,
-            squash_output: bool= False,
-            features_extractor_class: Type[BaseFeaturesExtractor]= FlattenExtractor,
-            features_extractor_kwargs: Optional[Dict[str, Any]]= None,
-            normalize_images: bool= True,
-            optimizer_class: Type[th.optim.Optimizer]= th.optim.Adam,
-            optimizer_kwargs: Optional[Dict[str, Any]]= None,
-            use_aux: bool= False,
+            net_arch: Optional[List[Union[int, Dict[str, List[int]]]]] = None,
+            activation_fn: Type[nn.Module] = nn.Tanh,
+            ortho_init: bool = True,
+            use_sde: bool = False,
+            log_std_init: float = 0.0,
+            full_std: bool = True,
+            sde_net_arch: Optional[List[int]] = None,
+            use_expln: bool = False,
+            squash_output: bool = False,
+            features_extractor_class: Type[BaseFeaturesExtractor] = FlattenExtractor,
+            features_extractor_kwargs: Optional[Dict[str, Any]] = None,
+            normalize_images: bool = True,
+            optimizer_class: Type[th.optim.Optimizer] = th.optim.Adam,
+            optimizer_kwargs: Optional[Dict[str, Any]] = None,
+            use_aux: bool = False,
             aux_pred_dim=2,
             proprio_dim=11,
             cut_out_aux_head=2,
@@ -100,12 +100,12 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
             leatent_feature_dim=128
     ):
 
-        self.use_aux= use_aux
-        self.aux_pred_dim= aux_pred_dim
-        self.proprio_dim= proprio_dim
-        self.cut_out_aux_head= cut_out_aux_head
-        self.deact_aux= deact_aux
-        self.leatent_feature_dim= leatent_feature_dim
+        self.use_aux = use_aux
+        self.aux_pred_dim = aux_pred_dim
+        self.proprio_dim = proprio_dim
+        self.cut_out_aux_head = cut_out_aux_head
+        self.deact_aux = deact_aux
+        self.leatent_feature_dim = leatent_feature_dim
 
         super(ActorCriticPolicy_Aux, self).__init__(
             observation_space=observation_space,
@@ -135,7 +135,7 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
         # Note: If net_arch is None and some features extractor is used,
         #       net_arch here is an empty list and mlp_extractor does not
         #       really contain any layers (acts like an identity module).
-        self.mlp_extractor= MlpExtractor(
+        self.mlp_extractor = MlpExtractor(
             self.features_dim,
             net_arch=self.net_arch,
             activation_fn=self.activation_fn,
@@ -143,7 +143,7 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
 
         )
 
-        self.mlp_aux_extractor= MlpExtractor_Aux(
+        self.mlp_aux_extractor = MlpExtractor_Aux(
             self.features_dim - 128 + self.proprio_dim,
             net_arch=self.net_arch,
             activation_fn=self.activation_fn,
@@ -159,30 +159,31 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
         """
         self._build_mlp_extractor()
 
-        latent_dim_pi= self.mlp_extractor.latent_dim_pi
+        latent_dim_pi = self.mlp_extractor.latent_dim_pi
 
         if isinstance(self.action_dist, DiagGaussianDistribution):
-            self.action_net, self.log_std= self.action_dist.proba_distribution_net(
+            self.action_net, self.log_std = self.action_dist.proba_distribution_net(
                 latent_dim=latent_dim_pi, log_std_init=self.log_std_init
             )
         elif isinstance(self.action_dist, StateDependentNoiseDistribution):
-            self.action_net, self.log_std= self.action_dist.proba_distribution_net(
+            self.action_net, self.log_std = self.action_dist.proba_distribution_net(
                 latent_dim=latent_dim_pi, latent_sde_dim=latent_dim_pi, log_std_init=self.log_std_init
             )
         elif isinstance(self.action_dist,
                         (CategoricalDistribution, MultiCategoricalDistribution, BernoulliDistribution)):
-            self.action_net= self.action_dist.proba_distribution_net(latent_dim=latent_dim_pi)
+            self.action_net = self.action_dist.proba_distribution_net(latent_dim=latent_dim_pi)
         else:
             raise NotImplementedError(f"Unsupported distribution '{self.action_dist}'.")
 
-        self.value_net= nn.Linear(self.mlp_extractor.latent_dim_vf, 1)
-        self.aux_net_angle= nn.Sequential(nn.Linear(self.mlp_aux_extractor.latent_dim_aux, self.aux_pred_dim),
-                                           nn.Tanh())
+        self.value_net = nn.Linear(self.mlp_extractor.latent_dim_vf, 1)
+        self.aux_net_angle = nn.Sequential(
+                                        nn.Linear(self.mlp_aux_extractor.latent_dim_aux,self.aux_pred_dim),
+                                        nn.Tanh())
         if self.deact_aux:
             for params in self.aux_net.parameters():
-                params.requires_grad= False
+                params.requires_grad = False
             for params in self.mlp_aux_extractor.parameters():
-                params.requires_grad= False
+                params.requires_grad = False
 
         def init_weights(m):
             if isinstance(m, nn.Linear):
@@ -196,7 +197,7 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
             # Values from stable-baselines.
             # features_extractor/mlp values are
             # originally from openai/baselines (default gains/init_scales).
-            module_gains= {
+            module_gains = {
                 self.features_extractor: np.sqrt(2),
                 self.mlp_extractor: np.sqrt(2),
                 self.action_net: 0.01,
@@ -206,29 +207,29 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
                 module.apply(partial(self.init_weights, gain=gain))
 
         # Setup optimizer with initial learning rate
-        self.optimizer= self.optimizer_class(self.parameters(), lr=lr_schedule(1), **self.optimizer_kwargs)
+        self.optimizer = self.optimizer_class(self.parameters(), lr=lr_schedule(1), **self.optimizer_kwargs)
 
-    def forward(self, obs: th.Tensor, deterministic: bool= False) -> Tuple[th.Tensor, th.Tensor, th.Tensor]:
+    def forward(self, obs: th.Tensor, deterministic: bool = False) -> Tuple[th.Tensor, th.Tensor, th.Tensor]:
 
-        features= self.extract_features(obs)
+        features = self.extract_features(obs)
 
-        latent_pi, latent_vf= self.mlp_extractor(features)
+        latent_pi, latent_vf = self.mlp_extractor(features)
 
-        latent_aux= self.mlp_aux_extractor(
+        latent_aux = self.mlp_aux_extractor(
             th.cat([obs['task_obs'][:, self.cut_out_aux_head::], features[:, self.leatent_feature_dim::]],
                    dim=1).float())
-        aux_angle= self.aux_net_angle(latent_aux)
+        aux_angle = self.aux_net_angle(latent_aux)
 
         # Evaluate the values for the given observations
-        values= self.value_net(latent_vf)
+        values = self.value_net(latent_vf)
 
-        distribution= self._get_action_dist_from_latent(latent_pi)
-        actions= distribution.get_actions(deterministic=deterministic)
-        log_prob= distribution.log_prob(actions)
+        distribution = self._get_action_dist_from_latent(latent_pi)
+        actions = distribution.get_actions(deterministic=deterministic)
+        log_prob = distribution.log_prob(actions)
 
         return actions, values, log_prob, aux_angle
 
-    def _predict(self, observation: th.Tensor, deterministic: bool= False) -> th.Tensor:
+    def _predict(self, observation: th.Tensor, deterministic: bool = False) -> th.Tensor:
         """
         Get the action according to the policy for a given observation.
 
@@ -237,7 +238,7 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
         :return: Taken action according to the policy
         """
 
-        ac, aux_angle= self.get_distribution(observation)
+        ac, aux_angle = self.get_distribution(observation)
         return ac.get_actions(deterministic=deterministic), aux_angle
 
     def evaluate_actions(self, obs: th.Tensor, actions: th.Tensor) -> Tuple[th.Tensor, th.Tensor, th.Tensor]:
@@ -251,17 +252,17 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
             and entropy of the action distribution.
         """
         # Preprocess the observation if needed
-        features= self.extract_features(obs)
+        features = self.extract_features(obs)
 
-        latent_pi, latent_vf= self.mlp_extractor(features)
+        latent_pi, latent_vf = self.mlp_extractor(features)
 
-        latent_aux= self.mlp_aux_extractor(
+        latent_aux = self.mlp_aux_extractor(
             th.cat([obs['task_obs'][:, self.cut_out_aux_head::], features[:, self.leatent_feature_dim::]],
                    dim=1).float())
-        distribution= self._get_action_dist_from_latent(latent_pi)
-        log_prob= distribution.log_prob(actions)
-        values= self.value_net(latent_vf)
-        aux_angle= self.aux_net_angle(latent_aux)
+        distribution = self._get_action_dist_from_latent(latent_pi)
+        log_prob = distribution.log_prob(actions)
+        values = self.value_net(latent_vf)
+        aux_angle = self.aux_net_angle(latent_aux)
 
         return values, log_prob, distribution.entropy(), aux_angle
 
@@ -272,45 +273,45 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
         :param obs:
         :return: the action distribution.
         """
-        features= self.extract_features(obs)
-        latent_pi= self.mlp_extractor.forward_actor(features)
-        latent_aux= self.mlp_aux_extractor(
+        features = self.extract_features(obs)
+        latent_pi = self.mlp_extractor.forward_actor(features)
+        latent_aux = self.mlp_aux_extractor(
             th.cat([obs['task_obs'][:, self.cut_out_aux_head::], features[:, self.leatent_feature_dim::]],
                    dim=1).float())
-        aux_angle= self.aux_net_angle(latent_aux)
+        aux_angle = self.aux_net_angle(latent_aux)
 
         return self._get_action_dist_from_latent(latent_pi), aux_angle
 
     def predict(
             self,
             observation: Union[np.ndarray, Dict[str, np.ndarray]],
-            state: Optional[np.ndarray]= None,
-            mask: Optional[np.ndarray]= None,
-            deterministic: bool= False,
+            state: Optional[np.ndarray] = None,
+            mask: Optional[np.ndarray] = None,
+            deterministic: bool = False,
     ) -> Tuple[np.ndarray, Optional[np.ndarray]]:
 
         self.set_training_mode(False)
 
-        observation, vectorized_env= self.obs_to_tensor(observation)
+        observation, vectorized_env = self.obs_to_tensor(observation)
 
         with th.no_grad():
-            actions, aux_angle= self._predict(observation, deterministic=deterministic)
+            actions, aux_angle = self._predict(observation, deterministic=deterministic)
         # Convert to numpy
-        actions= actions.cpu().numpy()
+        actions = actions.cpu().numpy()
 
-        aux_angle= aux_angle.cpu().numpy()
+        aux_angle = aux_angle.cpu().numpy()
 
         if isinstance(self.action_space, gym.spaces.Box):
             if self.squash_output:
                 # Rescale to proper domain when using squashing
-                actions= self.unscale_action(actions)
+                actions = self.unscale_action(actions)
             else:
                 # Actions could be on arbitrary scale, so clip the actions to avoid
                 # out of bound error (e.g. if sampling from a Gaussian distribution)
-                actions= np.clip(actions, self.action_space.low, self.action_space.high)
+                actions = np.clip(actions, self.action_space.low, self.action_space.high)
 
         # Remove batch dimension if needed
         if not vectorized_env:
-            actions= actions[0]
+            actions = actions[0]
 
         return actions, state, aux_angle
