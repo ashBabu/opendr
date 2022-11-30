@@ -54,7 +54,7 @@ class DictRolloutBuffer(RolloutBuffer):
             buffer_size: int,
             observation_space: spaces.Space,
             action_space: spaces.Space,
-            device: Union[th.device, str] = "cpu",
+            device="cpu",
             gae_lambda: float = 1,
             gamma: float = 0.99,
             n_envs: int = 1,
