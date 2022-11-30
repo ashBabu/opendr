@@ -1,3 +1,18 @@
+# Copyright 2020-2022 OpenDR European Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
 import os
 from typing import Callable
 
@@ -38,7 +53,6 @@ class SaveModel(BaseCallback):
       It must contains the file created by the ``Monitor`` wrapper.
     :param verbose: (int)
     """
-
     def __init__(self, check_freq: int, log_dir: str = './', verbose=1, model_id=1):
         super(SaveModel, self).__init__(verbose)
         self.check_freq = check_freq
@@ -47,95 +61,28 @@ class SaveModel(BaseCallback):
         self.save_path = os.path.join(log_dir, 'best_model_retrain_latest_{}'.format(self.curriculum_stage))
         self.model_id = model_id
         self.save_path_last = os.path.join(log_dir, 'last_model')
-
         self.best_mean_reward = -np.inf
-        # self.best_succ_rate = 0.0
-        # self.custom_env = None #self.model.env.envs[0]
-        # self.save_freq = 25000
-        # self.buffer = None #self.model.rollout_buffer
         self.backward_episodes = 100
-        # self.current_stage_sum = 0
-
-    """
-    def _init_callback(self) -> None:
-        # Create folder if needed
-        #if self.save_path is not None:
-        #    os.makedirs(self.save_path, exist_ok=True)
-
-        self.custom_env = self.model.env
-        #self.buffer = self.model.rollout_buffer
-    """
 
     def _on_step(self) -> bool:
-
-        # check if model has failed status and reset buffer accordingly
-        # if(self.custom_env.failed_status):
-        #  self.model.n_steps -= self.custom_env.step_counter
-        #  self.buffer.pos -= self.custom_env.step_counter
-        #  print("removed current episode and set back counter's")
-        #  self.env.reset()
-        # check model checkpoint
-
-        # print("Iteration",self.n_calls)
         if (self.n_calls + 1) % self.check_freq == 0:
-            """
-            if self.current_stage_sum < self.custom_env.stages.sum():
-              print("----->NEW STAGE HAS BEEN OBSERVED IN SAVE CALLBACK<------")
-              self.best_mean_reward = 0
-
-              self.current_stage_sum = self.custom_env.stages.sum()
-              self.curriculum_stage += 1
-              self.save_path = os.path.join(self.log_dir, 'best_model_retrain_latest_{}'.format(self.curriculum_stage))
-            """
-            """
-            if(self.backward_episodes < 100):
-              self.backward_episodes += 4
-              
-            if(self.custom_env.task.curriculum_stage != self.curriculum_stage):
-              self.curriculum_stage = self.custom_env.task.curriculum_stage
-              self.best_mean_reward = -np.inf
-              self.save_path = os.path.join(self.log_dir, 'best_model_retrain_latest_{}'.format(self.curriculum_stage))
-              self.backward_episodes = 4
-              return 
-  
-            """
             # Retrieve training reward
             x, y = ts2xy(load_results(self.log_dir), 'timesteps')
             if len(x) > 0:
                 # Mean training reward over the last 100 episodes
                 mean_reward = np.mean(y[-self.backward_episodes:])
-
                 if self.verbose > 0:
                     print(f"Num timesteps: {self.num_timesteps}")
                     print(
                         f"Best mean reward: {self.best_mean_reward:.2f} - \
                         Last mean reward per episode: {mean_reward:.2f}")
-
                 # New best model, you could save the agent here
                 if mean_reward > self.best_mean_reward:
-
                     self.best_mean_reward = mean_reward
                     # Example for saving best model
                     if self.verbose > 0:
                         print(f"Saving new best model to {self.save_path}.zip")
                     self.model.save(self.save_path)
-
                 print(f"Saving new LATEST model to {self.save_path}.zip")
                 self.model.save(self.save_path_last)
-
-            """
-            mean_succ = np.mean(self.custom_env.succ_rate)
-            if(mean_succ > self.best_succ_rate):
-              self.best_succ_rate = mean_succ
-              print(f"Saving new best succ_model to {self.save_path_succ}.zip")
-              self.model.save(self.save_path_succ)
-            """
-
-        """
-        if (self.n_calls+1) % self.save_freq == 0:
-            p = os.path.join(self.log_dir, 'model_retrain_2_{}'.format(self.n_calls))
-            print(f"Saving model to {p}.zip")
-            self.model.save(p)
-        """
-
         return True
