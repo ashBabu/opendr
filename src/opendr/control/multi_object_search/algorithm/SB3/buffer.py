@@ -54,53 +54,53 @@ class DictRolloutBuffer(RolloutBuffer):
             buffer_size: int,
             observation_space: spaces.Space,
             action_space: spaces.Space,
-            device: Union[th.device, str] = "cpu",
-            gae_lambda: float = 1,
-            gamma: float = 0.99,
-            n_envs: int = 1,
-            use_aux: bool = False,
-            aux_dim: int = 1
+            device: Union[th.device, str]= "cpu",
+            gae_lambda: float= 1,
+            gamma: float= 0.99,
+            n_envs: int= 1,
+            use_aux: bool= False,
+            aux_dim: int= 1
     ):
 
         super(RolloutBuffer, self).__init__(buffer_size, observation_space, action_space, device, n_envs=n_envs)
 
         assert isinstance(self.obs_shape, dict), "DictRolloutBuffer must be used with Dict obs space only"
-        self.use_aux = use_aux
-        self.aux_dim = aux_dim
-        self.gae_lambda = gae_lambda
-        self.gamma = gamma
+        self.use_aux= use_aux
+        self.aux_dim= aux_dim
+        self.gae_lambda= gae_lambda
+        self.gamma= gamma
 
         if (self.use_aux):
-            self.observations, self.actions, self.rewards, self.advantages = None, None, None, None
-            self.aux_angle, self.aux_angle_gt = None, None
+            self.observations, self.actions, self.rewards, self.advantages= None, None, None, None
+            self.aux_angle, self.aux_angle_gt= None, None
         else:
-            self.observations, self.actions, self.rewards, self.advantages = None, None, None, None
+            self.observations, self.actions, self.rewards, self.advantages= None, None, None, None
 
-        self.returns, self.episode_starts, self.values, self.log_probs = None, None, None, None
-        self.generator_ready = False
+        self.returns, self.episode_starts, self.values, self.log_probs= None, None, None, None
+        self.generator_ready= False
         self.reset()
 
     def reset(self) -> None:
         assert isinstance(self.obs_shape, dict), "DictRolloutBuffer must be used with Dict obs space only"
-        self.observations = {}
+        self.observations= {}
         for key, obs_input_shape in self.obs_shape.items():
-            self.observations[key] = np.zeros((self.buffer_size, self.n_envs) + obs_input_shape, dtype=np.float32)
+            self.observations[key]= np.zeros((self.buffer_size, self.n_envs) + obs_input_shape, dtype=np.float32)
 
         if (self.use_aux):
-            self.aux_angle = np.zeros((self.buffer_size, self.n_envs, self.aux_dim), dtype=np.float32)
-            self.aux_angle_gt = np.zeros((self.buffer_size, self.n_envs, 1), dtype=np.float32)
+            self.aux_angle= np.zeros((self.buffer_size, self.n_envs, self.aux_dim), dtype=np.float32)
+            self.aux_angle_gt= np.zeros((self.buffer_size, self.n_envs, 1), dtype=np.float32)
 
-            # self.aux_dist = np.zeros((self.buffer_size, self.n_envs, 1), dtype=np.float32)
-            # self.aux_dist_gt = np.zeros((self.buffer_size, self.n_envs, 1), dtype=np.float32)
+            # self.aux_dist= np.zeros((self.buffer_size, self.n_envs, 1), dtype=np.float32)
+            # self.aux_dist_gt= np.zeros((self.buffer_size, self.n_envs, 1), dtype=np.float32)
 
-        self.actions = np.zeros((self.buffer_size, self.n_envs, self.action_dim), dtype=np.float32)
-        self.rewards = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
-        self.returns = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
-        self.episode_starts = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
-        self.values = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
-        self.log_probs = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
-        self.advantages = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
-        self.generator_ready = False
+        self.actions= np.zeros((self.buffer_size, self.n_envs, self.action_dim), dtype=np.float32)
+        self.rewards= np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
+        self.returns= np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
+        self.episode_starts= np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
+        self.values= np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
+        self.log_probs= np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
+        self.advantages= np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
+        self.generator_ready= False
         super(RolloutBuffer, self).reset()
 
     def add(
@@ -124,55 +124,55 @@ class DictRolloutBuffer(RolloutBuffer):
         :param log_prob: log probability of the action
             following the current policy.
         """
-        if len(log_prob.shape) == 0:
+        if len(log_prob.shape)== 0:
             # Reshape 0-d tensor to avoid error
-            log_prob = log_prob.reshape(-1, 1)
+            log_prob= log_prob.reshape(-1, 1)
 
         for key in self.observations.keys():
-            obs_ = np.array(obs[key]).copy()
+            obs_= np.array(obs[key]).copy()
             # Reshape needed when using multiple envs with discrete observations
             # as numpy cannot broadcast (n_discrete,) to (n_discrete, 1)
             if isinstance(self.observation_space.spaces[key], spaces.Discrete):
-                obs_ = obs_.reshape((self.n_envs,) + self.obs_shape[key])
-            self.observations[key][self.pos] = obs_
+                obs_= obs_.reshape((self.n_envs,) + self.obs_shape[key])
+            self.observations[key][self.pos]= obs_
 
-        self.actions[self.pos] = np.array(action).copy()
-        self.rewards[self.pos] = np.array(reward).copy()
-        self.episode_starts[self.pos] = np.array(episode_start).copy()
-        self.values[self.pos] = value.clone().cpu().numpy().flatten()
-        self.log_probs[self.pos] = log_prob.clone().cpu().numpy()
-        self.aux_angle[self.pos] = np.array(aux_angle).copy()
-        self.aux_angle_gt[self.pos] = np.array(aux_angle_gt).copy()
+        self.actions[self.pos]= np.array(action).copy()
+        self.rewards[self.pos]= np.array(reward).copy()
+        self.episode_starts[self.pos]= np.array(episode_start).copy()
+        self.values[self.pos]= value.clone().cpu().numpy().flatten()
+        self.log_probs[self.pos]= log_prob.clone().cpu().numpy()
+        self.aux_angle[self.pos]= np.array(aux_angle).copy()
+        self.aux_angle_gt[self.pos]= np.array(aux_angle_gt).copy()
         self.pos += 1
 
-        if self.pos == self.buffer_size:
-            self.full = True
+        if self.pos== self.buffer_size:
+            self.full= True
 
-    def get(self, batch_size: Optional[int] = None) -> Generator[DictRolloutBufferSamples, None, None]:
+    def get(self, batch_size: Optional[int]= None) -> Generator[DictRolloutBufferSamples, None, None]:
         assert self.full, ""
-        indices = np.random.permutation(self.buffer_size * self.n_envs)
+        indices= np.random.permutation(self.buffer_size * self.n_envs)
         # Prepare the data
         if not self.generator_ready:
 
             for key, obs in self.observations.items():
-                self.observations[key] = self.swap_and_flatten(obs)
+                self.observations[key]= self.swap_and_flatten(obs)
 
-            _tensor_names = ["actions", "values", "log_probs", "advantages", "returns", "aux_angle", "aux_angle_gt"]
+            _tensor_names= ["actions", "values", "log_probs", "advantages", "returns", "aux_angle", "aux_angle_gt"]
 
             for tensor in _tensor_names:
-                self.__dict__[tensor] = self.swap_and_flatten(self.__dict__[tensor])
-            self.generator_ready = True
+                self.__dict__[tensor]= self.swap_and_flatten(self.__dict__[tensor])
+            self.generator_ready= True
 
         # Return everything, don't create minibatches
         if batch_size is None:
-            batch_size = self.buffer_size * self.n_envs
+            batch_size= self.buffer_size * self.n_envs
 
-        start_idx = 0
+        start_idx= 0
         while start_idx < self.buffer_size * self.n_envs:
             yield self._get_samples(indices[start_idx: start_idx + batch_size])
             start_idx += batch_size
 
-    def _get_samples(self, batch_inds: np.ndarray, env: Optional[VecNormalize] = None) -> DictRolloutBufferSamples:
+    def _get_samples(self, batch_inds: np.ndarray, env: Optional[VecNormalize]= None) -> DictRolloutBufferSamples:
 
         return DictRolloutBufferSamples(
             observations={key: self.to_torch(obs[batch_inds]) for (key, obs) in self.observations.items()},
@@ -182,7 +182,5 @@ class DictRolloutBuffer(RolloutBuffer):
             advantages=self.to_torch(self.advantages[batch_inds].flatten()),
             returns=self.to_torch(self.returns[batch_inds].flatten()),
             aux_angle=self.to_torch(self.aux_angle[batch_inds]),
-
             aux_angle_gt=self.to_torch(self.aux_angle_gt[batch_inds]),
-
         )

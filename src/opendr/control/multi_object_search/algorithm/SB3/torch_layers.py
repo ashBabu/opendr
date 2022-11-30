@@ -30,7 +30,7 @@ class MlpExtractor_Aux(nn.Module):
             feature_dim: int,
             net_arch: List[Union[int, Dict[str, List[int]]]],
             activation_fn: Type[nn.Module],
-            device: Union[th.device, str] = "auto",
+            device: Union[th.device, str]= "auto",
     ):
         super(MlpExtractor_Aux, self).__init__()
         device = get_device(device)
