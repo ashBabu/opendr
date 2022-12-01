@@ -51,17 +51,18 @@ class PointCloud2Publisher(Node):
             self.point_cloud_2_publisher = self.create_publisher(ROS_PointCloud2, output_point_cloud_2_topic, 10)
         
 
-    def callback(self):
+    def start(self):
         """
         Starts the ROS Node
         """
         i = 0 
-        
+        print("Starting point cloud 2 publisher")
         while rclpy.ok():
+            print("Publishing point cloud 2 message")
             point_cloud = self.dataset[i % len(self.dataset)][0]
             self.get_logger().info("Publishing point_cloud_2 [" + str(i) + "]")
             message = self._ros2_bridge.to_ros_point_cloud2(point_cloud, 
-                                                            self.get_cloack().now().to_msg(),
+                                                            self.get_clock().now().to_msg(),
                                                             ROS_PointCloud2)
             self.point_cloud_2_publisher.publish(message)
             i += 1
@@ -76,10 +77,10 @@ def main(args=None):
     parser.add_argument("--output_point_cloud_2_topic", type=str, default="/opendr/dataset_point_cloud2", help="Topic to which we are publishing the point cloud")
     args = parser.parse_args()
 
-    dataset = SemanticKittiDataset(args.dataset_path)
+    dataset = SemanticKittiDataset(path=os.path.join(args.dataset_path, "eval_data"), split="valid")
     point_cloud_2_publisher = PointCloud2Publisher(dataset, args.output_point_cloud_2_topic)
 
-    rclpy.spin(point_cloud_2_publisher)
+    point_cloud_2_publisher.start()
 
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically

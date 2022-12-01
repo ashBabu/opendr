@@ -25,7 +25,7 @@ from vision_msgs.msg import Detection2DArray, Detection2D, BoundingBox2D, Object
 from shape_msgs.msg import Mesh, MeshTriangle
 from geometry_msgs.msg import Point, Pose2D
 from opendr_ros2_messages.msg import OpenDRPose2D, OpenDRPose2DKeypoint, OpenDRPose3D, OpenDRPose3DKeypoint
-from sensor_msgs import point_cloud2 as pc2
+import sensor_msgs_py.point_cloud2 as pc2
 
 
 class ROS2Bridge:
@@ -486,14 +486,14 @@ class ROS2Bridge:
 
         channel_count = point_cloud.data.shape[-1] - 3
 
-        fields = [PointFieldMsg("x", 0, PointFieldMsg.FLOAT32, 1),
-                  PointFieldMsg("y", 4, PointFieldMsg.FLOAT32, 1),
-                  PointFieldMsg("z", 8, PointFieldMsg.FLOAT32, 1)]
+        fields = [PointFieldMsg(name="x", offset=0, datatype=PointFieldMsg.FLOAT32, count=1),
+                  PointFieldMsg(name="y", offset=4, datatype=PointFieldMsg.FLOAT32, count=1),
+                  PointFieldMsg(name="z", offset=8, datatype=PointFieldMsg.FLOAT32, count=1)]
         if channels == 'rgb' or channels == 'rgba':
-            fields.append(PointFieldMsg("rgba", 12, PointFieldMsg.UINT32, 1))
+            fields.append(PointFieldMsg(name="rgba", offset=12, datatype=PointFieldMsg.UINT32, count=1))
         else:
             for i in range(channel_count):
-                fields.append(PointFieldMsg("channel_" + str(i), 12 + 4 * i, PointFieldMsg.FLOAT32, 1))
+                fields.append(PointFieldMsg(name="channel_" + str(i), offset=12 + i * 4, datatype=PointFieldMsg.FLOAT32, count=1))
 
         points = []
 
