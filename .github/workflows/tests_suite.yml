@@ -79,6 +79,7 @@ jobs:
           - perception/facial_expression_recognition
           - control/single_demo_grasp
           - planning/end_to_end_planning
+          - control/multi_object_search
           # - perception/object_tracking_3d
         include:
           - os: ubuntu-20.04
@@ -183,6 +184,7 @@ jobs:
           - perception/object_detection_2d/retinaface
           - perception/object_detection_2d/nms
           - perception/facial_expression_recognition
+          - control/multi_object_search
           # - perception/object_detection_3d
           # - control/mobile_manipulation
           # - simulation/human_model_generation
@@ -255,6 +257,7 @@ jobs:
           - perception/object_detection_2d/retinaface
           - perception/object_detection_2d/nms
           - perception/facial_expression_recognition
+          - control/multi_object_search
           # - perception/object_detection_3d
           # - control/mobile_manipulation
           # - simulation/human_model_generation
@@ -338,6 +341,7 @@ jobs:
           - simulation/human_model_generation
           - control/single_demo_grasp
           - planning/end_to_end_planning
+          - control/multi_object_search
           # - perception/object_tracking_3d
     runs-on: ubuntu-20.04
     steps:
