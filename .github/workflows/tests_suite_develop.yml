@@ -1,6 +1,6 @@
 name: Test Suite (develop)
 
-# note: this workflow is only triggered by the nightly scheduled run. 
+# note: this workflow is only triggered by the nightly scheduled run.
 # it is identical to master's workflow, but targets the develop branch.
 on:
   schedule:
