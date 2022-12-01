@@ -23,8 +23,8 @@ jobs:
       matrix:
         os: [ubuntu-20.04]
         package:
-          - engine
-          - utils
+          #- engine
+          #- utils
           - control/multi_object_search
     runs-on: ${{ matrix.os }}
     steps:
@@ -49,8 +49,8 @@ jobs:
       matrix:
         os: [ubuntu-20.04]
         package:
-          - engine
-          - utils
+          #- engine
+          #- utils
           - control/multi_object_search
     runs-on: ${{ matrix.os }}
     steps:

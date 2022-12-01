@@ -54,8 +54,8 @@ jobs:
       matrix:
         os: [ubuntu-20.04]
         package:
-          - engine
-          - utils
+          #- engine
+          #- utils
           #- perception/activity_recognition
           #- perception/compressive_learning
           #- perception/face_recognition
@@ -167,8 +167,8 @@ jobs:
       matrix:
         os: [ubuntu-20.04]
         package:
-          - engine
-          - utils
+          #- engine
+          #- utils
           #- perception/activity_recognition
           #- perception/compressive_learning
           #- perception/face_recognition
@@ -240,8 +240,8 @@ jobs:
       matrix:
         os: [ubuntu-20.04]
         package:
-          - engine
-          - utils
+          #- engine
+          #- utils
           #- perception/activity_recognition
           #- perception/compressive_learning
           #- perception/face_recognition
@@ -318,8 +318,8 @@ jobs:
       matrix:
         os: [ubuntu-20.04]
         package:
-          - engine
-          - utils
+          #- engine
+          #- utils
           
           # - perception/object_tracking_3d
     runs-on: ubuntu-20.04
