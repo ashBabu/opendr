@@ -79,6 +79,7 @@ jobs:
           - perception/facial_expression_recognition
           - control/single_demo_grasp
           - planning/end_to_end_planning
+          - control/multi_object_search
           # - perception/object_tracking_3d
         include:
           - os: ubuntu-20.04
