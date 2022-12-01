@@ -28,6 +28,31 @@ from opendr.engine.data import PointCloud
 from opendr.engine.datasets import ExternalDataset, DatasetIterator
 
 
+# Palette values are taken from https://github.com/PRBonn/semantic-kitti-api/blob/master/config/semantic-kitti.yaml
+PALETTE = np.array([
+    [245, 150, 100],  # Car - 0
+    [245, 230, 100],  # Bycicle - 1
+    [250, 80, 100],  # Motorcycle - 2
+    [180, 30, 80],   # Truck - 3
+    [255, 0, 0],  # Other vehicle - 4
+    [30, 30, 255],  # Person - 5
+    [200, 40, 255],  # Bicyclist - 6
+    [90, 30, 150],  # Motorcyclist - 7
+    [255, 0, 255],  # Road - 8
+    [255, 150, 255],  # Parking - 9
+    [75, 0, 75],  # Sidewalk - 10
+    [75, 0, 175],  # Other ground - 11
+    [0, 200, 255],  # Building - 12
+    [50, 120, 255],  # Fence - 13
+    [0, 175, 0],  # Vegetation - 14
+    [0, 60, 135],  # Trunk - 15
+    [80, 240, 150],  # Terrain - 16
+    [150, 240, 255],  # Pole - 17
+    [0, 0, 255],  # Traffic sign - 18
+    [0, 0, 0],  # Unlabelled - 18
+])
+
+
 class SemanticKittiDataset(ExternalDataset, DatasetIterator):
     """
     The SemanticKittiDataset class provides interfaces to the OpenDR and MMDetector API for different use cases.
@@ -147,23 +172,23 @@ class SemanticKittiDataset(ExternalDataset, DatasetIterator):
                  min_points: int = 50,
                  ) -> Dict[str, Any]:
         """
-This method is used to evaluate the predictions versus the ground truth returns the following stats:
-    - Panoptic Quality (PQ)
-    - Segmentation Quality (SQ)
-    - Recognition Quality (RQ)
-    - Intersection over Union (IOU)
+        This method is used to evaluate the predictions versus the ground truth returns the following stats:
+            - Panoptic Quality (PQ)
+            - Segmentation Quality (SQ)
+            - Recognition Quality (RQ)
+            - Intersection over Union (IOU)
 
-This function contains modified code from '_evaluate_panoptic()' in
-    src/opendr/perception/panoptic_segmentation/efficient_lps/algorithm/EfficientLPS/mmdet2/datasets/semantic_kitti.py
+        This function contains modified code from '_evaluate_panoptic()' in
+            src/opendr/perception/panoptic_segmentation/efficient_lps/algorithm/EfficientLPS/mmdet2/datasets/semantic_kitti.py
 
-:param prediction_path: path to the predicted stuffandthing maps.
-:type prediction_path: str | pathlib.Path
-:param min_points:
-:type min_points: int
+        :param prediction_path: path to the predicted stuffandthing maps.
+        :type prediction_path: str | pathlib.Path
+        :param min_points:
+        :type min_points: int
 
-:return: Evaluation statistics.
-:rtype: dict
-"""
+        :return: Evaluation statistics.
+        :rtype: dict
+        """
 
         if not isinstance(prediction_path, Path):
             prediction_path = Path(prediction_path)
@@ -227,15 +252,15 @@ This function contains modified code from '_evaluate_panoptic()' in
                     idx: int
                     ) -> Tuple[PointCloud, None]:
         """
-Method is used for loading the idx-th sample of a dataset along with its annotation.
-In this case, the annotation is split up into different files and, thus, a different interface is used.
+        Method is used for loading the idx-th sample of a dataset along with its annotation.
+        In this case, the annotation is split up into different files and, thus, a different interface is used.
 
-:param idx: Index of the sample to load.
-:type idx: int
+        :param idx: Index of the sample to load.
+        :type idx: int
 
-:return: The idx-th sample and the corresponding annotation.
-:rtype: Tuple of (PointCloud, None)
-"""
+        :return: The idx-th sample and the corresponding annotation.
+        :rtype: Tuple of (PointCloud, None)
+        """
 
         dataset = self._get_mmdet2_dataset(test_mode=not self.split == "train", ignore_pipeline=True)
         item_path = dataset.vel_seq_infos[idx]
@@ -246,11 +271,11 @@ In this case, the annotation is split up into different files and, thus, a diffe
     def __len__(self
                 ) -> int:
         """
-This method returns the size of the dataset in terms of number of data points (scan frames).
+        This method returns the size of the dataset in terms of number of data points (scan frames).
 
-:return: the size of the dataset
-:rtype: int
-"""
+        :return: the size of the dataset
+        :rtype: int
+        """
 
         return len(self._get_mmdet2_dataset(test_mode=not self.split == "train", ignore_pipeline=True))
 
@@ -260,8 +285,8 @@ This method returns the size of the dataset in terms of number of data points (s
         """
         Returns the dataset in a format compatible with the mmdet2 dataloader.
 
-:param test_mode: Whether to use the train or test data pipelines.
-                                          If set to True, the panoptic ground truth data has to be present
+        :param test_mode: Whether to use the train or test data pipelines.
+                          If set to True, the panoptic ground truth data has to be present
         :type test_mode: bool
 
         :return: MMDet compatible dataset
