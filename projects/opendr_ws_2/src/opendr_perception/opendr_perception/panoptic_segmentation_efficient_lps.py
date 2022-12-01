@@ -22,8 +22,7 @@ import numpy as  np
 import rclpy
 from rclpy.node import Node
 import matplotlib
-from sensor_msgs.msg import PointCloud as ROS_PointCloud
-from sensor_msgs.msg import Image as ROS_Image
+from sensor_msgs.msg import PointCloud2 as ROS_PointCloud2
 
 from opendr_ros2_bridge import ROS2Bridge
 from opendr.perception.panoptic_segmentation import EfficientLpsLearner
@@ -35,7 +34,7 @@ matplotlib.use('Agg')
 class EfficientLpsNode(Node):
 
     def __init__(self,
-                 input_rgb_pcl_topic: str,
+                 input_pcl_topic: str,
                  checkpoint: str,
                  output_rgb_visualization_topic: Optional[str] = None
                  ):
@@ -53,14 +52,16 @@ class EfficientLpsNode(Node):
         :param projected_output: Publish predictions as a 2D Projection.
         :type projected_output: bool
         """
+        super().__init__('efficient_lps_node')
 
+        self.input_pcl_topic = input_pcl_topic
         self.checkpoint = checkpoint
+        self.output_rgb_visualization_topic = output_rgb_visualization_topic
         
 
-
-        # Initialize all ROS related things
+        # Initialize all ROS2 related things
         self._bridge = ROS2Bridge()
-
+        self._visualization_publisher = None
 
         # Initialize the panoptic segmentation network
         config_file = Path(sys.modules[
@@ -95,42 +96,16 @@ class EfficientLpsNode(Node):
         """
         Subscribe to all relevant topics.
         """
-        self.image_subscriber = self.create_subscription(self.input_rgb_pcl_topic, ROS_PointCloud, self.callback)
+        self.image_subscriber = self.create_subscription(self.input_pcl_topic, ROS_PointCloud2, self.callback)
 
     def _init_publisher(self):
         """
         Set up the publishers as requested by the user.
         """
-        if self.output_heatmap_pointcloud_topic is not None:
-
-                self._semantic_heatmap_publisher = None
         if self.output_rgb_visualization_topic is not None:
-            self._visualization_publisher = self.create_publisher(ROS_Image,
+            self._visualization_publisher = self.create_publisher(ROS_PointCloud2,
                                                                   self.output_rgb_visualization_topic, 
                                                                   10)
-
-    def _join_arrays(self, arrays: List[np.ndarray]):
-        """
-        Function for efficiently concatenating numpy arrays.
-
-        :param arrays: List of numpy arrays to be concatenated
-        :type arrays: List[np.ndarray]
-
-        :return: Array comprised of the concatenated inputs.
-        :rtype: np.ndarray
-        """
-
-        sizes = np.array([a.itemsize for a in arrays])
-        offsets = np.r_[0, sizes.cumsum()]
-        n = len(arrays[0])
-        joint = np.empty((n, offsets[-1]), dtype=np.uint8)
-
-        for a, size, offset in zip(arrays, sizes, offsets):
-            joint[:, offset:offset + size] = a.view(np.uint8).reshape(n, size)
-
-        dtype = sum((a.dtype.descr for a in arrays), [])
-
-        return joint.ravel().view(dtype)
 
     def listen(self):
         """
@@ -149,15 +124,36 @@ class EfficientLpsNode(Node):
             self.destroy_node()
             rclpy.shutdown()
 
-    def callback(self, data: ROS_PointCloud):
+    def callback(self, data: ROS_PointCloud2):
         """
         Predict the panoptic segmentation map from the input point cloud and publish the results.
 
-        :param data: PointCloud data message
-        :type data: sensor_msgs.msg.PointCloud
+        :param data: PointCloud2 data message
+        :type data: sensor_msgs.msg.PointCloud2
         """
-        # Convert sensor_msgs.msg.Image to OpenDR Image
+        
+        pointcloud = self._bridge.from_ros2_pointcloud2(data)
 
+        try: 
+            prediction = self._learner.infer(pointcloud)
+
+        except Exception as e:
+            self.get_logger().error('Failed to perform inference: {}'.format(e))
+            return
+        
+        try:
+
+            # The output topics are only published if there is at least one subscriber
+            if self._visualization_publisher is not None and self._visualization_publisher.get_subscription_count() > 0:
+                pointcloud_visualization = EfficientLpsLearner.visualize(pointcloud,
+                                                                         prediction, 
+                                                                         return_pointcloud=True, 
+                                                                         return_pointcloud_type="panoptic")
+                ros_pointcloud2_msg = self._bridge.to_ros_point_cloud2(pointcloud_visualization, channels='rgb')
+                self._visualization_publisher.publish(ros_pointcloud2_msg)
+
+        except Exception as e:
+            self.get_logger().error('Failed to publish the results: {}'.format(e))
 
 
 def main(args=None):

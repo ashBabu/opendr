@@ -19,10 +19,10 @@ from opendr.engine.target import Pose, BoundingBox, BoundingBoxList, Category
 
 from cv_bridge import CvBridge
 from std_msgs.msg import String, ColorRGBA, Header
-from sensor_msgs.msg import Image as ImageMsg
+from sensor_msgs.msg import Image as ImageMsg, PointCloud2 as PointCloud2Msg, PointField as PointFieldMsg
 from vision_msgs.msg import Detection2DArray, Detection2D, BoundingBox2D, ObjectHypothesis, ObjectHypothesisWithPose, \
     Classification2D
-from shape_msgs.msg import Mesh, MeshTriangle, PointCloud2 as PointCloud2Msg, PointField as PointFieldMsg
+from shape_msgs.msg import Mesh, MeshTriangle
 from geometry_msgs.msg import Point, Pose2D
 from opendr_ros2_messages.msg import OpenDRPose2D, OpenDRPose2DKeypoint, OpenDRPose3D, OpenDRPose3DKeypoint
 from sensor_msgs import point_cloud2 as pc2

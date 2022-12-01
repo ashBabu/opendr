@@ -22,7 +22,7 @@ import time
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import PointCloud2 as ROS_PointCloud2
-from opendr_bridge import ROS2Bridge
+from opendr_ros2_bridge import ROS2Bridge
 
 from opendr.engine.datasets import DatasetIterator
 from opendr.perception.panoptic_segmentation import SemanticKittiDataset
