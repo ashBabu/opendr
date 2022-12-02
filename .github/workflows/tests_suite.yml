@@ -189,7 +189,6 @@ jobs:
           # - simulation/human_model_generation
           # - control/single_demo_grasp
           # - perception/object_tracking_3d
-          - control/multi_object_search
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
@@ -341,7 +340,6 @@ jobs:
           - control/single_demo_grasp
           - planning/end_to_end_planning
           # - perception/object_tracking_3d
-          - control/multi_object_search
     runs-on: ubuntu-20.04
     steps:
     - name: Download artifact
