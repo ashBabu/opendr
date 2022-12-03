@@ -48,7 +48,7 @@ jobs:
           # - simulation/human_model_generation
           # - control/single_demo_grasp
           - perception/object_tracking_3d
-          - control/multi_object_search
+          #- control/multi_object_search
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
@@ -97,7 +97,7 @@ jobs:
           - simulation/human_model_generation
           - control/single_demo_grasp
           - perception/object_tracking_3d
-          - control/multi_object_search
+          #- control/multi_object_search
     runs-on: ${{ matrix.os }}
     steps:
     - name: Set up Python 3.8
