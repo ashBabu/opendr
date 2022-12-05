@@ -27,7 +27,7 @@ from stable_baselines3.common.distributions import (
     MultiCategoricalDistribution,
     StateDependentNoiseDistribution,
 )
-from stable_baselines3.common.policies import ActorCriticPolicy
+
 from stable_baselines3.common.torch_layers import (
     BaseFeaturesExtractor,
     FlattenExtractor,
@@ -37,7 +37,7 @@ from stable_baselines3.common.type_aliases import Schedule
 from torch import nn
 
 from opendr.control.multi_object_search.algorithm.SB3.torch_layers import MlpExtractor_Aux
-
+from opendr.control.multi_object_search.algorithm.SB3.policies import ActorCriticPolicy
 
 class ActorCriticPolicy_Aux(ActorCriticPolicy):
     """
@@ -274,7 +274,7 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
         :return: the action distribution.
         """
         features = self.extract_features(obs)
-        latent_pi = self.mlp_extractor.forward_actor(features)
+        latent_pi = self.mlp_extractor.forward(features)
         latent_aux = self.mlp_aux_extractor(
             th.cat([obs['task_obs'][:, self.cut_out_aux_head::], features[:, self.leatent_feature_dim::]],
                    dim=1).float())
