@@ -35,9 +35,9 @@ from stable_baselines3.common.torch_layers import (
 )
 from stable_baselines3.common.type_aliases import Schedule
 from torch import nn
-
 from opendr.control.multi_object_search.algorithm.SB3.torch_layers import MlpExtractor_Aux
 from opendr.control.multi_object_search.algorithm.SB3.policies import ActorCriticPolicy
+
 
 class ActorCriticPolicy_Aux(ActorCriticPolicy):
     """

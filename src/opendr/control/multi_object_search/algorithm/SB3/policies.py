@@ -68,7 +68,7 @@ class BaseModel(nn.Module, ABC):
         self,
         observation_space: gym.spaces.Space,
         action_space: gym.spaces.Space,
-        features_extractor_class= FlattenExtractor,
+        features_extractor_class=FlattenExtractor,
         features_extractor_kwargs=None,
         features_extractor=None,
         normalize_images: bool = True,
