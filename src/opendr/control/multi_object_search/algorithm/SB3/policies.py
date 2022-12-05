@@ -34,14 +34,9 @@ from stable_baselines3.common.distributions import (
     make_proba_distribution,
 )
 from stable_baselines3.common.preprocessing import get_action_dim, is_image_space, maybe_transpose, preprocess_obs
-from stable_baselines3.common.torch_layers import (
-    BaseFeaturesExtractor,
-    CombinedExtractor,
-    FlattenExtractor,
-    MlpExtractor,
-    NatureCNN,
-    create_mlp,
-)
+from stable_baselines3.common.torch_layers import BaseFeaturesExtractor, CombinedExtractor, FlattenExtractor
+from stable_baselines3.common.torch_layers import MlpExtractor, NatureCNN, create_mlp
+
 from stable_baselines3.common.type_aliases import Schedule
 from stable_baselines3.common.utils import get_device, is_vectorized_observation, obs_as_tensor
 
@@ -73,12 +68,12 @@ class BaseModel(nn.Module, ABC):
         self,
         observation_space: gym.spaces.Space,
         action_space: gym.spaces.Space,
-        features_extractor_class: Type[BaseFeaturesExtractor] = FlattenExtractor,
-        features_extractor_kwargs: Optional[Dict[str, Any]] = None,
-        features_extractor: Optional[nn.Module] = None,
+        features_extractor_class= FlattenExtractor,
+        features_extractor_kwargs=None,
+        features_extractor=None,
         normalize_images: bool = True,
-        optimizer_class: Type[th.optim.Optimizer] = th.optim.Adam,
-        optimizer_kwargs: Optional[Dict[str, Any]] = None,
+        optimizer_class=th.optim.Adam,
+        optimizer_kwargs=None,
     ):
         super(BaseModel, self).__init__()
 
@@ -175,7 +170,7 @@ class BaseModel(nn.Module, ABC):
         th.save({"state_dict": self.state_dict(), "data": self._get_constructor_parameters()}, path)
 
     @classmethod
-    def load(cls, path: str, device: Union[th.device, str] = "auto") -> "BaseModel":
+    def load(cls, path: str, device="auto") -> "BaseModel":
         """
         Load model from path.
 
@@ -320,8 +315,8 @@ class BasePolicy(BaseModel):
     def predict(
         self,
         observation: Union[np.ndarray, Dict[str, np.ndarray]],
-        state: Optional[Tuple[np.ndarray, ...]] = None,
-        episode_start: Optional[np.ndarray] = None,
+        state=None,
+        episode_start=None,
         deterministic: bool = False,
     ) -> Tuple[np.ndarray, Optional[Tuple[np.ndarray, ...]]]:
         """
@@ -428,20 +423,20 @@ class ActorCriticPolicy(BasePolicy):
         observation_space: gym.spaces.Space,
         action_space: gym.spaces.Space,
         lr_schedule: Schedule,
-        net_arch: Optional[List[Union[int, Dict[str, List[int]]]]] = None,
-        activation_fn: Type[nn.Module] = nn.Tanh,
+        net_arch=None,
+        activation_fn=nn.Tanh,
         ortho_init: bool = True,
         use_sde: bool = False,
         log_std_init: float = 0.0,
         full_std: bool = True,
-        sde_net_arch: Optional[List[int]] = None,
+        sde_net_arch=None,
         use_expln: bool = False,
         squash_output: bool = False,
-        features_extractor_class: Type[BaseFeaturesExtractor] = FlattenExtractor,
-        features_extractor_kwargs: Optional[Dict[str, Any]] = None,
+        features_extractor_class=FlattenExtractor,
+        features_extractor_kwargs=None,
         normalize_images: bool = True,
-        optimizer_class: Type[th.optim.Optimizer] = th.optim.Adam,
-        optimizer_kwargs: Optional[Dict[str, Any]] = None,
+        optimizer_class=th.optim.Adam,
+        optimizer_kwargs=None,
     ):
 
         if optimizer_kwargs is None:
