@@ -40,17 +40,12 @@ class EfficientLpsNode(Node):
                  ):
         """
         Initialize the EfficientLPS ROS node and create an instance of the respective learner class.
-        :param input_rgb_pcl_topic: ROS topic for the input point cloud
-        :type input_rgb_pcl_topic: str
-        :param checkpoint: This is either a path to a saved model or SemanticKITTI to download
-            pre-trained model weights.
+        :param input_pcl_topic: The name of the input point cloud topic.
+        :type input_pcl_topic: str
+        :param checkpoint: The path to the checkpoint file or the name of the pre-trained model.
         :type checkpoint: str
-        :param output_heatmap_topic: ROS topic for the predicted semantic and instance maps
-        :type output_topic: str
-        :param output_visualization_topic: ROS topic for the generated visualization of the panoptic map
-        :type output_visualization_topic: str
-        :param projected_output: Publish predictions as a 2D Projection.
-        :type projected_output: bool
+        :param output_rgb_visualization_topic: The name of the output RGB visualization topic.
+        :type output_rgb_visualization_topic: str
         """
         super().__init__('efficient_lps_node')
 
@@ -92,12 +87,6 @@ class EfficientLpsNode(Node):
             self.get_logger().error('Failed to load the checkpoint.')
             return False
 
-    def _init_subscriber(self):
-        """
-        Subscribe to all relevant topics.
-        """
-        self.image_subscriber = self.create_subscription(self.input_pcl_topic, ROS_PointCloud2, self.callback)
-
     def _init_publisher(self):
         """
         Set up the publishers as requested by the user.
@@ -106,7 +95,15 @@ class EfficientLpsNode(Node):
             self._visualization_publisher = self.create_publisher(ROS_PointCloud2,
                                                                   self.output_rgb_visualization_topic, 
                                                                   10)
-
+    def _init_subscriber(self):
+        """
+        Subscribe to all relevant topics.
+        """
+        self.pointcloud2_subscriber = self.create_subscription(ROS_PointCloud2, 
+                                                               self.input_pcl_topic,
+                                                               self.callback,
+                                                               1)
+     
     def listen(self):
         """
         Start the node and begin processing input data. The order of the function calls ensures that the node does not
@@ -115,7 +112,7 @@ class EfficientLpsNode(Node):
         if self._init_learner():
             self._init_publisher()
             self._init_subscriber()
-            self.get_logger().info('EfficientPS node started!')
+            self.get_logger().info('EfficientLPS node started!')
             rclpy.spin(self)
 
             # Destroy the node explicitly
@@ -132,7 +129,7 @@ class EfficientLpsNode(Node):
         :type data: sensor_msgs.msg.PointCloud2
         """
         
-        pointcloud = self._bridge.from_ros2_pointcloud2(data)
+        pointcloud = self._bridge.from_ros_point_cloud2(data)
 
         try: 
             prediction = self._learner.infer(pointcloud)
@@ -142,14 +139,15 @@ class EfficientLpsNode(Node):
             return
         
         try:
-
             # The output topics are only published if there is at least one subscriber
             if self._visualization_publisher is not None and self._visualization_publisher.get_subscription_count() > 0:
                 pointcloud_visualization = EfficientLpsLearner.visualize(pointcloud,
                                                                          prediction, 
                                                                          return_pointcloud=True, 
                                                                          return_pointcloud_type="panoptic")
-                ros_pointcloud2_msg = self._bridge.to_ros_point_cloud2(pointcloud_visualization, channels='rgb')
+                ros_pointcloud2_msg = self._bridge.to_ros_point_cloud2(pointcloud_visualization,
+                                                                       self.get_clock().now().to_msg(),
+                                                                       channels='rgb')
                 self._visualization_publisher.publish(ros_pointcloud2_msg)
 
         except Exception as e:
