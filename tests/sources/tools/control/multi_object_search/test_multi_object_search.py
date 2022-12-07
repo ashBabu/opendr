@@ -131,14 +131,6 @@ class MultiObjectSearchTest(unittest.TestCase):
         cls.assertTrue(len(metrics['episode_rewards']) == nr_evaluations, "Episode rewards have incorrect length.")
         cls.assertTrue((np.array(metrics['episode_lengths']) >= 0.0).all(), "Test episode lengths is negative")
 
-    def test_eval_pretrained(cls):
-
-        nr_evaluations = 3
-        cls.learner.load('pretrained')
-        metrics = cls.learner.eval(cls.env, nr_evaluations=nr_evaluations, name_scene="Rs")
-        success = metrics['metrics']['success']
-        cls.assertTrue(success > 0.6, f"Success rate of pretrained model is only {success}")
-
     def test_infer(cls):
         obs = cls.env.observation_space.sample()
         actions = cls.learner.infer(obs)[0]
