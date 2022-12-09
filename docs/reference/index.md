@@ -16,6 +16,8 @@ Neither the copyright holder nor any applicable licensor will be liable for any 
 
 ## Table of Contents
 
+- [Installation](/docs/reference/installation.md)
+- [Customization](/docs/reference/customize.md)
 - Inference and Training API
     - `engine` Module
         - [engine.data Module](engine-data.md)
@@ -29,20 +31,23 @@ Neither the copyright holder nor any applicable licensor will be liable for any 
         - pose estimation:
             - [lightweight_open_pose Module](lightweight-open-pose.md)
         - activity recognition:
-            - [activity_recognition Module](activity-recognition.md)
-        - action recognition:
             - [skeleton_based_action_recognition](skeleton-based-action-recognition.md)
+            - [x3d Module](activity-recognition.md#class-x3dlearner)
+            - [continual x3d Module](activity-recognition.md#class-cox3dlearner)
+            - [continual transformer encoder Module](continual-transformer-encoder.md)
         - speech recognition:
             - [matchboxnet Module](matchboxnet.md)
             - [edgespeechnets Module](edgespeechnets.md)
             - [quadraticselfonn Module](quadratic-selfonn.md)
         - object detection 2d:
+            - [nanodet Module](nanodet.md)
             - [detr Module](detr.md)
             - [gem Module](gem.md)
             - [retinaface Module](face-detection-2d-retinaface.md)
             - [centernet Module](object-detection-2d-centernet.md)
             - [ssd Module](object-detection-2d-ssd.md)
             - [yolov3 Module](object-detection-2d-yolov3.md)
+            - [yolov5 Module](object-detection-2d-yolov5.md)
             - [seq2seq-nms Module](object-detection-2d-nms-seq2seq_nms.md)
         - object detection 3d:
             - [voxel Module](voxel-object-detection-3d.md)
@@ -78,9 +83,10 @@ Neither the copyright holder nor any applicable licensor will be liable for any 
         - [human_model_generation Module](human-model-generation.md)
     - `utils` Module
         - [Hyperparameter Tuning Module](hyperparameter_tuner.md)
+        - [Ambiguity Measure Module](ambiguity_measure.md)
     - `Stand-alone Utility Frameworks`
         - [Engine Agnostic Gym Environment with Reactive extension (EAGERx)](eagerx.md)
-- [ROSBridge Package](rosbridge.md)
+- [ROS Bridge Package](opendr-ros-bridge.md)
 - [C Inference API](c-api.md)
     - [data.h](c-data-h.md)
     - [target.h](c-target-h.md)
@@ -90,48 +96,50 @@ Neither the copyright holder nor any applicable licensor will be liable for any 
     - `C API` Module
         - [face recognition Demo](/projects/c_api)
     - `control` Module
-        - [mobile_manipulation Demo](/projects/control/mobile_manipulation)
-        - [single_demo_grasp Demo](/projects/control/single_demo_grasp)
+        - [mobile_manipulation Demo](/projects/python/control/mobile_manipulation)
+        - [single_demo_grasp Demo](/projects/python/control/single_demo_grasp)
     - `opendr workspace` Module
         - [opendr_ws](/projects/opendr_ws)
     - `perception` Module
         - activity recognition:
-            - [activity_recognition Demo](/projects/perception/activity_recognition/demos/online_recognition)
+            - [activity_recognition Demo](/projects/python/perception/activity_recognition/demos/online_recognition)
         - face recognition:
-            - [face_recognition_Demo](/projects/perception/face_recognition)
+            - [face_recognition_Demo](/projects/python/perception/face_recognition)
         - facial expression recognition:
-            - [landmark_based_facial_expression_recognition Demo](/projects/perception/facial_expression_recognition/landmark_based_facial_expression_recognition)
+            - [landmark_based_facial_expression_recognition Demo](/projects/python/perception/facial_expression_recognition/landmark_based_facial_expression_recognition)
         - heart anomaly detection:
-            - [heart anomaly detection Demo](/projects/perception/heart_anomaly_detection)
+            - [heart anomaly detection Demo](/projects/python/perception/heart_anomaly_detection)
         - pose estimation:
-            - [lightweight_open_pose Demo](/projects/perception/lightweight_open_pose)
+            - [lightweight_open_pose Demo](/projects/python/perception/lightweight_open_pose)
         - multimodal human centric:
-            - [rgbd_hand_gesture_learner Demo](/projects/perception/multimodal_human_centric/rgbd_hand_gesture_recognition)
-            - [audiovisual_emotion_recognition Demo](/projects/perception/multimodal_human_centric/audiovisual_emotion_recognition)
+            - [rgbd_hand_gesture_learner Demo](/projects/python/perception/multimodal_human_centric/rgbd_hand_gesture_recognition)
+            - [audiovisual_emotion_recognition Demo](/projects/python/perception/multimodal_human_centric/audiovisual_emotion_recognition)
         - object detection 2d:
-            - [detr Demo](/projects/perception/object_detection_2d/detr)
-            - [gem Demo](/projects/perception/object_detection_2d/gem)
-            - [retinaface Demo](/projects/perception/object_detection_2d/retinaface)
-            - [centernet Demo](/projects/perception/object_detection_2d/centernet)
-            - [ssd Demo](/projects/perception/object_detection_2d/ssd)
-            - [yolov3 Demo](/projects/perception/object_detection_2d/yolov3)
-            - [seq2seq-nms Demo](/projects/perception/object_detection_2d/nms/seq2seq-nms)
+            - [nanodet Demo](/projects/python/perception/object_detection_2d/nanodet)
+            - [detr Demo](/projects/python/perception/object_detection_2d/detr)
+            - [gem Demo](/projects/python/perception/object_detection_2d/gem)
+            - [retinaface Demo](/projects/python/perception/object_detection_2d/retinaface)
+            - [centernet Demo](/projects/python/perception/object_detection_2d/centernet)
+            - [ssd Demo](/projects/python/perception/object_detection_2d/ssd)
+            - [yolov3 Demo](/projects/python/perception/object_detection_2d/yolov3)
+            - [seq2seq-nms Demo](/projects/python/perception/object_detection_2d/nms/seq2seq-nms)
         - object detection 3d:
-            - [voxel Demo](/projects/perception/object_detection_3d/demos/voxel_object_detection_3d)
+            - [voxel Demo](/projects/python/perception/object_detection_3d/demos/voxel_object_detection_3d)
         - object tracking 2d:
-            - [fair_mot Demo](/projects/perception/object_tracking_2d/demos/fair_mot_deep_sort)
+            - [fair_mot Demo](/projects/python/perception/object_tracking_2d/demos/fair_mot_deep_sort)
         - panoptic segmentation:
-            - [efficient_ps Demo](/projects/perception/panoptic_segmentation/efficient_ps)
+            - [efficient_ps Demo](/projects/python/perception/panoptic_segmentation/efficient_ps)
         - semantic segmentation:
-            - [bisnet Demo](/projects/perception/semantic_segmentation/bisenet)
+            - [bisnet Demo](/projects/python/perception/semantic_segmentation/bisenet)
         - action recognition:
-            - [skeleton_based_action_recognition Demo](/projects/perception/skeleton_based_action_recognition)
+            - [skeleton_based_action_recognition Demo](/projects/python/perception/skeleton_based_action_recognition)
         - fall detection:
-            - [fall_detection Demo](/projects/perception/fall_detection.md)
-        - [full_map_posterior_slam Module](/projects/perception/slam/full_map_posterior_gmapping)
+            - [fall_detection Demo](/projects/python/perception/fall_detection.md)
+        - [full_map_posterior_slam Module](/projects/python/perception/slam/full_map_posterior_gmapping)
     - `simulation` Module
-        - [SMPL+D Human Models Dataset](/projects/simulation/SMPL%2BD_human_models)
-        - [Human-Data-Generation-Framework](/projects/simulation/human_dataset_generation)
-        - [Human Model Generation Demos](/projects/simulation/human_dataset_generation)
+        - [SMPL+D Human Models Dataset](/projects/python/simulation/SMPL%2BD_human_models)
+        - [Human-Data-Generation-Framework](/projects/python/simulation/human_dataset_generation)
+        - [Human Model Generation Demos](/projects/python/simulation/human_dataset_generation)
     - `utils` Module
-        - [Hyperparameter Tuning Module](/projects/utils/hyperparameter_tuner)
+        - [Hyperparameter Tuning Module](/projects/python/utils/hyperparameter_tuner)
+- [Known Issues](/docs/reference/issues.md)
