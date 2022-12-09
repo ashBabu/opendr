@@ -71,7 +71,7 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
             observation_space: gym.spaces.Space,
             action_space: gym.spaces.Space,
             lr_schedule: Schedule,
-            net_arch: Optional[List[Union[int, Dict[str, List[int]]]]] = None,
+            net_arch=None,
             activation_fn: Type[nn.Module] = nn.Tanh,
             ortho_init: bool = True,
             use_sde: bool = False,
@@ -81,10 +81,10 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
             use_expln: bool = False,
             squash_output: bool = False,
             features_extractor_class: Type[BaseFeaturesExtractor] = FlattenExtractor,
-            features_extractor_kwargs: Optional[Dict[str, Any]] = None,
+            features_extractor_kwargs=None,
             normalize_images: bool = True,
             optimizer_class: Type[th.optim.Optimizer] = th.optim.Adam,
-            optimizer_kwargs: Optional[Dict[str, Any]] = None,
+            optimizer_kwargs=None,
             use_aux: bool = False,
             aux_pred_dim=2,
             proprio_dim=11,
@@ -308,7 +308,7 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
         return actions, state, aux_angle
 
     @classmethod
-    def load(cls, path: str, device: Union[th.device, str] = "auto"):
+    def load(cls, path: str, device="auto"):
         """
         Load model from path.
 
