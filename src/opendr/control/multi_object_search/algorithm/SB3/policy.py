@@ -1,20 +1,5 @@
-# Copyright 2020-2022 OpenDR European Project
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-
 from functools import partial
-from typing import Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import gym
 import numpy as np
@@ -28,15 +13,23 @@ from stable_baselines3.common.distributions import (
     StateDependentNoiseDistribution,
 )
 
+
 from stable_baselines3.common.torch_layers import (
     BaseFeaturesExtractor,
     FlattenExtractor,
     MlpExtractor,
 )
+
 from stable_baselines3.common.type_aliases import Schedule
 from torch import nn
+
 from opendr.control.multi_object_search.algorithm.SB3.torch_layers import MlpExtractor_Aux
-from opendr.control.multi_object_search.algorithm.SB3.policies import ActorCriticPolicy
+
+import copy
+from stable_baselines3.common.preprocessing import is_image_space, maybe_transpose
+from stable_baselines3.common.utils import is_vectorized_observation, obs_as_tensor
+from stable_baselines3.common.policies import ActorCriticPolicy
+from stable_baselines3.common.utils import get_device
 
 
 class ActorCriticPolicy_Aux(ActorCriticPolicy):
@@ -78,7 +71,7 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
             observation_space: gym.spaces.Space,
             action_space: gym.spaces.Space,
             lr_schedule: Schedule,
-            net_arch=None,
+            net_arch: Optional[List[Union[int, Dict[str, List[int]]]]] = None,
             activation_fn: Type[nn.Module] = nn.Tanh,
             ortho_init: bool = True,
             use_sde: bool = False,
@@ -88,10 +81,10 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
             use_expln: bool = False,
             squash_output: bool = False,
             features_extractor_class: Type[BaseFeaturesExtractor] = FlattenExtractor,
-            features_extractor_kwargs=None,
+            features_extractor_kwargs: Optional[Dict[str, Any]] = None,
             normalize_images: bool = True,
             optimizer_class: Type[th.optim.Optimizer] = th.optim.Adam,
-            optimizer_kwargs=None,
+            optimizer_kwargs: Optional[Dict[str, Any]] = None,
             use_aux: bool = False,
             aux_pred_dim=2,
             proprio_dim=11,
@@ -176,9 +169,8 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
             raise NotImplementedError(f"Unsupported distribution '{self.action_dist}'.")
 
         self.value_net = nn.Linear(self.mlp_extractor.latent_dim_vf, 1)
-        self.aux_net_angle = nn.Sequential(
-                                        nn.Linear(self.mlp_aux_extractor.latent_dim_aux, self.aux_pred_dim),
-                                        nn.Tanh())
+        self.aux_net_angle = nn.Sequential(nn.Linear(self.mlp_aux_extractor.latent_dim_aux, self.aux_pred_dim),
+                                           nn.Tanh())
         if self.deact_aux:
             for params in self.aux_net.parameters():
                 params.requires_grad = False
@@ -279,7 +271,6 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
             th.cat([obs['task_obs'][:, self.cut_out_aux_head::], features[:, self.leatent_feature_dim::]],
                    dim=1).float())
         aux_angle = self.aux_net_angle(latent_aux)
-
         return self._get_action_dist_from_latent(latent_pi), aux_angle
 
     def predict(
@@ -315,3 +306,87 @@ class ActorCriticPolicy_Aux(ActorCriticPolicy):
             actions = actions[0]
 
         return actions, state, aux_angle
+
+    @classmethod
+    def load(cls, path: str, device: Union[th.device, str] = "auto"):
+        """
+        Load model from path.
+
+        :param path:
+        :param device: Device on which the policy should be loaded.
+        :return:
+        """
+        device = get_device(device)
+        saved_variables = th.load(path, map_location=device)
+
+        # Allow to load policy saved with older version of SB3
+        if "sde_net_arch" in saved_variables["data"]:
+            del saved_variables["data"]["sde_net_arch"]
+
+        # Create policy object
+        model = cls(**saved_variables["data"])  # pytype: disable=not-instantiable
+        # Load weights
+        model.load_state_dict(saved_variables["state_dict"])
+        model.to(device)
+        return model
+
+    def set_training_mode(self, mode: bool):
+        """
+        Put the policy in either training or evaluation mode.
+
+        This affects certain modules, such as batch normalisation and dropout.
+
+        :param mode: if true, set to training mode, else set to evaluation mode
+        """
+        self.train(mode)
+
+    def obs_to_tensor(self, observation: Union[np.ndarray, Dict[str, np.ndarray]]) -> Tuple[th.Tensor, bool]:
+        """
+        Convert an input observation to a PyTorch tensor that can be fed to a model.
+        Includes sugar-coating to handle different observations (e.g. normalizing images).
+
+        :param observation: the input observation
+        :return: The observation as PyTorch tensor
+            and whether the observation is vectorized or not
+        """
+        vectorized_env = False
+        if isinstance(observation, dict):
+            # need to copy the dict as the dict in VecFrameStack will become a torch tensor
+            observation = copy.deepcopy(observation)
+            for key, obs in observation.items():
+                obs_space = self.observation_space.spaces[key]
+                if is_image_space(obs_space):
+                    obs_ = maybe_transpose(obs, obs_space)
+                else:
+                    obs_ = np.array(obs)
+                vectorized_env = vectorized_env or is_vectorized_observation(obs_, obs_space)
+                # Add batch dimension if needed
+                observation[key] = obs_.reshape((-1,) + self.observation_space[key].shape)
+
+        elif is_image_space(self.observation_space):
+            # Handle the different cases for images
+            # as PyTorch use channel first format
+            observation = maybe_transpose(observation, self.observation_space)
+
+        else:
+            observation = np.array(observation)
+
+        if not isinstance(observation, dict):
+            # Dict obs need to be handled separately
+            vectorized_env = is_vectorized_observation(observation, self.observation_space)
+            # Add batch dimension if needed
+            observation = observation.reshape((-1,) + self.observation_space.shape)
+
+        observation = obs_as_tensor(observation, self.device)
+        return observation, vectorized_env
+
+    def predict_values(self, obs: th.Tensor):
+        """
+        Get the estimated values according to the current policy given the observations.
+
+        :param obs:
+        :return: the estimated values.
+        """
+        features = self.extract_features(obs)
+        _, latent_vf = self.mlp_extractor(features)
+        return self.value_net(latent_vf)
