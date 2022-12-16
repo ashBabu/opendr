@@ -30,7 +30,7 @@ from opendr.engine.learners import LearnerRL
 from igibson.utils.assets_utils import download_assets, download_demo_data
 
 
-class ExplorationRLLearner(LearnerRL):
+class MultiObjectSearchRLLeaner(LearnerRL):
     def __init__(self, env: gym.Env, lr=1e-5, ent_coef: float = 0.005, clip_range: float = 0.1, gamma: float = 0.99,
                  n_steps: int = 2048, n_epochs: int = 4, iters=6_000_000, batch_size=64, lr_schedule='',
                  backbone='MultiInputPolicy', checkpoint_after_iter=20_000,
@@ -123,14 +123,12 @@ class ExplorationRLLearner(LearnerRL):
             aux_pred_dim=aux_bin_number,
             proprio_dim=task_obs)
 
-    def fit(self, env=None, logging_path='', silent=False, verbose=True):
+    def fit(self, env=None, logging_path=''):
         """
         Train the agent on the environment.
 
         :param env: gym.Env, optional, if specified use this env to train
         :param logging_path: str, path for logging and checkpointing
-        :param silent: bool, disable verbosity
-        :param verbose: bool, enable verbosity
         :return:
         """
         if logging_path == '':
@@ -149,6 +147,7 @@ class ExplorationRLLearner(LearnerRL):
 
         :param env: gym.Env, env to evaluate on
         :param name_prefix: str, name prefix for all logged variables
+        :param name_scene: str, name for iGibson scene
         :param nr_evaluations: int, number of episodes to evaluate over
         :param deterministic_policy: bool, whether using the deterministic policy or not
         :return:

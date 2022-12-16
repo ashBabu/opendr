@@ -20,7 +20,7 @@ import torch
 from typing import Callable
 from opendr.control.multi_object_search.algorithm.SB3.vec_env import VecEnvExt
 from stable_baselines3.common.vec_env import VecMonitor
-from opendr.control.multi_object_search import ExplorationRLLearner
+from opendr.control.multi_object_search import MultiObjectSearchRLLeaner
 from opendr.control.multi_object_search import MultiObjectEnv
 from pathlib import Path
 from igibson.utils.utils import parse_config
@@ -88,7 +88,7 @@ def main():
 
     # create envs
     env = create_env(config, logpath)
-    agent = ExplorationRLLearner(
+    agent = MultiObjectSearchRLLeaner(
         env,
         device=device,
         iters=config.get('train_iterations', 500),

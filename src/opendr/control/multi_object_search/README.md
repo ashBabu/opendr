@@ -1,6 +1,6 @@
 # OpenDR Multi Object Search - Long Horizon Reasoning
 
-This folder contains the OpenDR Learner class for Multi Object Search. This method uses reinforcement learning to train an agent that is able to control the base of a wheeled robot (Fetch and LoCoBot checkpoint provided) to locomote the agent through unseen envrionments.
+This folder contains the OpenDR Learner class for Multi Object Search. This method uses reinforcement learning to train an agent that is able to control the base of a wheeled robot (Fetch and LoCoBot checkpoint provided) to locomote the agent through unseen environments.
 
 ## Sources
 

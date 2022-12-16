@@ -99,6 +99,7 @@ Neither the copyright holder nor any applicable licensor will be liable for any 
     - `control` Module
         - [mobile_manipulation Demo](/projects/python/control/mobile_manipulation)
         - [single_demo_grasp Demo](/projects/python/control/single_demo_grasp)
+        - [multi_object_search Demo](/projects/python/control/multi_object_search)
     - `opendr workspace` Module
         - [opendr_ws](/projects/opendr_ws)
     - `perception` Module

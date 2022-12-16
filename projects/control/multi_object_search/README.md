@@ -17,7 +17,7 @@ Mobile manipulation tasks in the analytical environment can be run as follows:
 python multi_object_search_demo.py
 ```
 
-They demo either executes a training or evaluation instance. By default it will evaluate all evaluation-scenes for 75 episodes sequentially.
+The demo either executes a training or evaluation instance. By default it will evaluate all evaluation-scenes for 75 episodes sequentially.
 The following will list the most important flags in 
 ```bash
   best_defaults.yaml
