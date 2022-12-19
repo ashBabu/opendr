@@ -36,14 +36,14 @@ Constructor parameters:
 - **backbone**: *{'MultiInputPolicy'}, default='MultiInputPolicy'*\
   Specifies the architecture for the RL agent.
 - **checkpoint_after_iter**: *int, default=20_000*\
-  Specifies per how many training steps a checkpoint should be saved. 
+  Specifies per how many training steps a checkpoint should be saved.
   If it is set to 0 no checkpoints will be saved.
 - **temp_path**: *str, default=''*\
   Specifies a path where the algorithm stores log files and saves checkpoints.
 - **device**: *{'cpu', 'cuda'}, default='cuda'*\
   Specifies the device to be used.
 - **seed**: *int, default=None*\
-  Random seed for the agent. 
+  Random seed for the agent.
   If None a random seed will be used.
 - **config_filename**: *str, default=''*\
   Specifies the configuration file with important settings for the Simulator and PPO.
@@ -85,7 +85,6 @@ Parameters:
   Use deterministic or stochastic policy.
 
 
-
 #### `MultiObjectSearchRLLeaner.save`
 ```python
 MultiObjectSearchRLLeaner.save(self, path)
@@ -110,14 +109,13 @@ Parameters:
   Path of the model to be loaded.
 
 
-
 #### Simulation Setup
-The repository uses the iGibson Simulator as well as Stable-baseline3 as external libraries. 
+The repository uses the iGibson Simulator as well as Stable-baseline3 as external libraries.
 
-This means that the training environment relies on running using the iGibson scenes. 
-For that it is necessary to download the iGibson scenes. 
+This means that the training environment relies on running using the iGibson scenes.
+For that it is necessary to download the iGibson scenes.
 A script is provided in [multi_object_search]
-(/src/opendr/control/multi_object_search/requirements_installations.py) 
+(/src/opendr/control/multi_object_search/requirements_installations.py)
 To download he iGibson and the inflated traversability maps, please execute the following script and accept the agreement.
 
 ```sh
@@ -125,8 +123,7 @@ python requirements_installations.py
 ````
 
 The iGibson dataset requires a valid license, which needs to be added manually.
-The corresponding link can be found here 
-https://docs.google.com/forms/d/e/1FAIpQLScPwhlUcHu_mwBqq5kQzT2VRIRwg_rJvF0IWYBk_LxEZiJIFg/viewform.
+The corresponding link can be found [here](https://docs.google.com/forms/d/e/1FAIpQLScPwhlUcHu_mwBqq5kQzT2VRIRwg_rJvF0IWYBk_LxEZiJIFg/viewform).
 In order to validate the iGibson dataset, copy the igibson.key file into the igibson/data/ folder.
 For more information please have a look on the official website: https://stanfordvl.github.io/iGibson/dataset.html
 
@@ -140,13 +137,11 @@ As described above, follow the download instructions.
   ```python
     import torch
     from typing import Callable
-    from opendr.control.multi_object_search import MultiObjectSearchRLLeaner 
+    from opendr.control.multi_object_search import MultiObjectSearchRLLeaner
     from opendr.control.multi_object_search import MultiObjectEnv
     from opendr.control.multi_object_search.algorithm.SB3.vec_env import VecEnvExt
     from pathlib import Path
     from igibson.utils.utils import parse_config
-
-
 
 
     def main():
@@ -168,7 +163,7 @@ As described above, follow the download instructions.
 
         mix_sample = {'Merom_0_int': False}
         train_set = ['Merom_0_int']
-    
+
         env = VecEnvExt([make_env(0, data_set=train_set)])
         device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -187,16 +182,13 @@ As described above, follow the download instructions.
 
     if __name__ == '__main__':
         main()
-
-
-    
   ```
 
 * **Evaluate a pretrained model**
-  
+
   ```python
     import torch
-    from opendr.control.multi_object_search import MultiObjectSearchRLLeaner 
+    from opendr.control.multi_object_search import MultiObjectSearchRLLeaner
     from opendr.control.multi_object_search import MultiObjectEnv
     from pathlib import Path
     from igibson.utils.utils import parse_config
@@ -206,13 +198,13 @@ As described above, follow the download instructions.
       logpath = f"{main_path}/logs/demo_run"
       #best_defaults.yaml contains important settings. (see above)
       CONFIG_FILE = str(f"{main_path}/best_defaults.yaml")
-  
+
       env = MultiObjectEnv(config_file=CONFIG_FILE, scene_id="Benevolence_1_int")
 
       device = "cuda" if torch.cuda.is_available() else "cpu"
 
       config = parse_config(CONFIG_FILE)
-  
+
       agent = MultiObjectSearchRLLeaner(env, device=device, iters=config.get('train_iterations', 500),temp_path=logpath,config_filename=CONFIG_FILE)
 
       # evaluate on finding 6 objects on all test scenes
