@@ -101,7 +101,6 @@ class MultiObjectSearchTest(unittest.TestCase):
 
         # Remove temporary files
         try:
-
             shutil.rmtree(TEMP_SAVE_DIR)
         except OSError as e:
             print(f"Exception when trying to remove temp directory: {e.strerror}")
@@ -111,7 +110,6 @@ class MultiObjectSearchTest(unittest.TestCase):
 
         # Remove temporary files
         try:
-
             shutil.rmtree(TEMP_SAVE_DIR)
         except OSError as e:
             print(f"Exception when trying to remove temp directory: {e.strerror}")
