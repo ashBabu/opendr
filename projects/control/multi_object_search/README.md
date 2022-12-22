@@ -22,8 +22,7 @@ The following will list the most important flags in
 ```bash
   best_defaults.yaml
 ```
-Uncomment or comment (#) the desired robot by either using the LoCoBot or Fetch. The training can be specified by `evaluation = false`(true by default).
-
+Uncomment or comment (#) the desired robot by either using LoCoBot or Fetch. Training can be specified by `evaluation = false`(true by default).
 
 ## Acknowledgement
 This work has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 871449 (OpenDR). This publication reflects the authors’ views only. The European Commission is not responsible for any use that may be made of the information it contains.

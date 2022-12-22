@@ -19,7 +19,7 @@ import torch
 import unittest
 import random
 from opendr.control.multi_object_search import MultiObjectEnv
-from opendr.control.multi_object_search import MultiObjectSearchRLLeaner
+from opendr.control.multi_object_search import MultiObjectSearchRLLearner
 from igibson.utils.utils import parse_config
 from stable_baselines3.common.monitor import Monitor
 
@@ -51,7 +51,7 @@ class MultiObjectSearchTest(unittest.TestCase):
         print("\n\n**********************************\nTEST Multi-Object-Search\n"
               "**********************************")
         set_seed(0)
-        cls.learner = MultiObjectSearchRLLeaner(
+        cls.learner = MultiObjectSearchRLLearner(
             env=None,
             device=device,
             iters=TEST_ITERS,
@@ -68,7 +68,7 @@ class MultiObjectSearchTest(unittest.TestCase):
 
         cls.env = Monitor(cls.env, str(TEMP_SAVE_DIR))
         config = parse_config(EVAL_CONFIG_FILE)
-        cls.learner = MultiObjectSearchRLLeaner(
+        cls.learner = MultiObjectSearchRLLearner(
             env=cls.env,
             lr=config.get("learning_rate", 0.0001),
             ent_coef=config.get("ent_coef", 0.005),

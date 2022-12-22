@@ -30,7 +30,7 @@ from opendr.engine.learners import LearnerRL
 from igibson.utils.assets_utils import download_assets, download_demo_data
 
 
-class MultiObjectSearchRLLeaner(LearnerRL):
+class MultiObjectSearchRLLearner(LearnerRL):
     def __init__(self, env: gym.Env, lr=1e-5, ent_coef: float = 0.005, clip_range: float = 0.1, gamma: float = 0.99,
                  n_steps: int = 2048, n_epochs: int = 4, iters=6_000_000, batch_size=64, lr_schedule='',
                  backbone='MultiInputPolicy', checkpoint_after_iter=20_000,

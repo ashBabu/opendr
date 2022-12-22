@@ -20,7 +20,7 @@ import torch
 from typing import Callable
 from opendr.control.multi_object_search.algorithm.SB3.vec_env import VecEnvExt
 from stable_baselines3.common.vec_env import VecMonitor
-from opendr.control.multi_object_search import MultiObjectSearchRLLeaner
+from opendr.control.multi_object_search import MultiObjectSearchRLLearner
 from opendr.control.multi_object_search import MultiObjectEnv
 from pathlib import Path
 from igibson.utils.utils import parse_config
@@ -36,11 +36,11 @@ def set_seed(seed: int):
 
 
 def create_env(config, logpath):
-    # Currently only for 8 training proccesses. Feel free to extend the list.
+    # Currently only for 8 training processes. Feel free to extend the list.
     train_set = ['Merom_0_int', 'Benevolence_0_int', 'Pomaria_0_int', 'Wainscott_1_int', 'Rs_int', 'Ihlen_0_int',
                  'Beechwood_1_int', 'Ihlen_1_int']
 
-    # List is corresponds to which scenes are oversampled and which are not.
+    # List corresponds to which scenes are oversampled and which are not.
 
     mix_sample = {'Merom_0_int': False, 'Benevolence_0_int': True, 'Pomaria_0_int': False, 'Wainscott_1_int': False,
                   'Rs_int': True, 'Ihlen_0_int': False, 'Beechwood_1_int': False, 'Ihlen_1_int': False}
@@ -88,7 +88,7 @@ def main():
 
     # create envs
     env = create_env(config, logpath)
-    agent = MultiObjectSearchRLLeaner(
+    agent = MultiObjectSearchRLLearner(
         env,
         device=device,
         iters=config.get('train_iterations', 500),

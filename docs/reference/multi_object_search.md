@@ -1,17 +1,17 @@
 # multi_object_search module
 
-The *multi_object_search* module contains the *MultiObjectSearchRLLeaner* class, which inherits from the abstract class *LearnerRL*.
+The *multi_object_search* module contains the *MultiObjectSearchRLLearner* class, which inherits from the abstract class *LearnerRL*.
 
-### Class MultiObjectSearchRLLeaner
+### Class MultiObjectSearchRLLearner
 Bases: `engine.learners.LearnerRL`
 
-The *MultiObjectSearchRLLeaner* class is an RL agent that can be used to train wheeled robots for combining short-horizon control with long horizon reasoning into a single policy.
+The *MultiObjectSearchRLLearner* class is an RL agent that can be used to train wheeled robots for combining short-horizon control with long horizon reasoning into a single policy.
 Originally published in [[1]](#multi_object_search), Learning Long-Horizon Robot Exploration Strategies for Multi-Object Search in Continuous Action Spaces,(https://arxiv.org/abs/2205.11384).
 
-The [MultiObjectSearchRLLeaner](/src/opendr/control/multi_object_search/multi_object_search_learner.py) class has the following public methods:
+The [MultiObjectSearchRLLearner](/src/opendr/control/multi_object_search/multi_object_search_learner.py) class has the following public methods:
 
-#### `MultiObjectSearchRLLeaner` constructor
-MultiObjectSearchRLLeaner(self, env, lr, ent_coef, clip_range, gamma, n_steps, n_epochs, iters, batch_size, backbone, checkpoint_after_iter, temp_path, device, seed, config_filename, nr_evaluations)
+#### `MultiObjectSearchRLLearner` constructor
+MultiObjectSearchRLLearner(self, env, lr, ent_coef, clip_range, gamma, n_steps, n_epochs, iters, batch_size, lr_schedule, backbone, checkpoint_after_iter, temp_path, device, seed, config_filename, nr_evaluations)
 
 Constructor parameters:
 
@@ -29,10 +29,13 @@ Constructor parameters:
   Specifies the number of steps to run for each environment per update during training.
 - **n_epochs**: *int, default=4*\
   Specifies the number of epochs when optimizing the surrogate loss during training.
-- **iters**: *int, default=1_000_000*\
+- **iters**: *int, default=6_000_000*\
   Specifies the number of steps the training should run for.
 - **batch_size**: *int, default=64*\
   Specifies the batch size during training.
+- **lr_schedule**: *{'', 'linear'}, default='linear'*\
+  Specifies the learning rate scheduler to use. Empty to use a constant rate.
+  Currently not implemented.
 - **backbone**: *{'MultiInputPolicy'}, default='MultiInputPolicy'*\
   Specifies the architecture for the RL agent.
 - **checkpoint_after_iter**: *int, default=20_000*\
@@ -50,9 +53,9 @@ Constructor parameters:
 - **nr_evaluations**: *int, default=75*\
   Number of episodes to evaluate over.
 
-#### `MultiObjectSearchRLLeaner.fit`
+#### `MultiObjectSearchRLLearner.fit`
 ```python
-MultiObjectSearchRLLeaner.fit(self, env, logging_path, silent, verbose)
+MultiObjectSearchRLLearner.fit(self, env, logging_path, silent, verbose)
 ```
 
 Trains the agent on the environment.
@@ -65,9 +68,9 @@ Parameters:
   Path for logging and checkpointing.
 
 
-#### `MultiObjectSearchRLLeaner.eval`
+#### `MultiObjectSearchRLLearner.eval`
 ```python
-MultiObjectSearchRLLeaner.eval(self, env, name_prefix, name_scene, nr_evaluations, deterministic_policy
+MultiObjectSearchRLLearner.eval(self, env, name_prefix, name_scene, nr_evaluations, deterministic_policy)
 ```
 Evaluates the agent on the specified environment.
 
@@ -86,9 +89,9 @@ Parameters:
 
 
 
-#### `MultiObjectSearchRLLeaner.save`
+#### `MultiObjectSearchRLLearner.save`
 ```python
-MultiObjectSearchRLLeaner.save(self, path)
+MultiObjectSearchRLLearner.save(self, path)
 ```
 Saves the model in the path provided.
 
@@ -98,9 +101,9 @@ Parameters:
   Path to save the model, including the filename.
 
 
-#### `MultiObjectSearchRLLeaner.load`
+#### `MultiObjectSearchRLLearner.load`
 ```python
-MultiObjectSearchRLLeaner.load(self, path)
+MultiObjectSearchRLLearner.load(self, path)
 ```
 Loads a model from the path provided.
 
@@ -140,7 +143,7 @@ As described above, follow the download instructions.
   ```python
     import torch
     from typing import Callable
-    from opendr.control.multi_object_search import MultiObjectSearchRLLeaner 
+    from opendr.control.multi_object_search import MultiObjectSearchRLLearner 
     from opendr.control.multi_object_search import MultiObjectEnv
     from opendr.control.multi_object_search.algorithm.SB3.vec_env import VecEnvExt
     from pathlib import Path
@@ -174,7 +177,7 @@ As described above, follow the download instructions.
 
         config = parse_config(CONFIG_FILE)
 
-        agent = MultiObjectSearchRLLeaner(env, device=device, iters=config.get('train_iterations', 500),temp_path=logpath,config_filename=CONFIG_FILE)
+        agent = MultiObjectSearchRLLearner(env, device=device, iters=config.get('train_iterations', 500),temp_path=logpath,config_filename=CONFIG_FILE)
 
         # start training
         agent.fit(env)
@@ -196,7 +199,7 @@ As described above, follow the download instructions.
   
   ```python
     import torch
-    from opendr.control.multi_object_search import MultiObjectSearchRLLeaner 
+    from opendr.control.multi_object_search import MultiObjectSearchRLLearner 
     from opendr.control.multi_object_search import MultiObjectEnv
     from pathlib import Path
     from igibson.utils.utils import parse_config
@@ -213,7 +216,7 @@ As described above, follow the download instructions.
 
       config = parse_config(CONFIG_FILE)
   
-      agent = MultiObjectSearchRLLeaner(env, device=device, iters=config.get('train_iterations', 500),temp_path=logpath,config_filename=CONFIG_FILE)
+      agent = MultiObjectSearchRLLearner(env, device=device, iters=config.get('train_iterations', 500),temp_path=logpath,config_filename=CONFIG_FILE)
 
       # evaluate on finding 6 objects on all test scenes
       eval_scenes = ['Benevolence_1_int', 'Pomaria_2_int', 'Benevolence_2_int', 'Wainscott_0_int', 'Beechwood_0_int',
