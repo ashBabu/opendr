@@ -82,7 +82,7 @@ Parameters:
   Name prefix for all logged variables.
 - **name_scene**: *str, default=''\
   Name of the iGibson scene.
-- **nr_evaluations**: *int, default=None*\
+- **nr_evaluations**: *int, default=75*\
   Number of episodes to evaluate over.
 - **deterministic_policy**: *bool, default=False*\
   Use deterministic or stochastic policy.
@@ -113,9 +113,9 @@ Parameters:
 
 
 #### Simulation Setup
-The repository uses the iGibson Simulator as well as Stable-baseline3 as external libraries.
+The repository uses the iGibson Simulator as well as Stable-Baselines3 as external libraries.
 
-This means that the training environment relies on running using the iGibson scenes.
+This means that for the training environment to run, it relies on using iGibson scenes.
 For that it is necessary to download the iGibson scenes.
 A script is provided in [multi_object_search]
 (/src/opendr/control/multi_object_search/requirements_installations.py)
@@ -199,7 +199,7 @@ As described above, follow the download instructions.
     def main():
       main_path = Path(__file__).parent
       logpath = f"{main_path}/logs/demo_run"
-      #best_defaults.yaml contains important settings. (see above)
+      # best_defaults.yaml contains important settings. (see above)
       CONFIG_FILE = str(f"{main_path}/best_defaults.yaml")
 
       env = MultiObjectEnv(config_file=CONFIG_FILE, scene_id="Benevolence_1_int")
@@ -231,7 +231,7 @@ As described above, follow the download instructions.
 
 #### Notes
 
-The iGibson simulator might crash, when evaluating multiple envrionments while using the gui mode (in .yaml file).
+The iGibson simulator might crash, when evaluating multiple environments while using the gui mode (in .yaml file).
 
 #### References
 <a name="multi-object-search" href="https://arxiv.org/abs/2205.11384">[1]</a> Learning Long-Horizon Robot Exploration Strategies for Multi-Object Search in Continuous Action Spaces,
